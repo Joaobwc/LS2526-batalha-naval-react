@@ -2,7 +2,7 @@ import { useState } from "react";
 import { REQUIRED_FLEET } from "../../constants";
 import { createEmptyBoard, createPlayer } from "../../helpers";
 
-export default function Game() {
+function Game() {
   const [player, setPlayer] = useState(function () {
     return createPlayer("");
   });
@@ -42,3 +42,5 @@ export default function Game() {
     </div>
   );
 }
+
+export default Game;
