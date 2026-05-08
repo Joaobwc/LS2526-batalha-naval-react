@@ -1,7 +1,7 @@
 import React from "react";
 
-function GameOver() {
+function Footer() {
   return <></>;
 }
 
-export default GameOver;
+export default Footer;

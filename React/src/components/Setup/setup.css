@@ -1,0 +1,65 @@
+#panel-setup {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+#panel-setup h3 {
+  margin: 0 0 0.75rem;
+}
+
+.setup-form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.setup-group {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.setup-label {
+  font-weight: 600;
+}
+
+.setup-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.setup-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+#panel-setup input,
+#panel-setup select {
+  padding: 0.55rem 0.65rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(0, 0, 0, 0.25);
+  color: inherit;
+}
+
+#panel-setup button {
+  padding: 0.55rem 0.8rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+  cursor: pointer;
+}
+
+#panel-setup button:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.setup-hint {
+  margin: 0.25rem 0 0;
+  opacity: 0.8;
+  font-size: 0.95rem;
+}
