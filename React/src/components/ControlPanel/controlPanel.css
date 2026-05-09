@@ -1,0 +1,48 @@
+#panel-control {
+  background-color: #1a365d; /* Fundo azul marinho escuro */
+  color: #e2e8f0; /* Texto claro */
+  border-radius: 10px;
+  padding: 20px 30px;
+  margin: 30px 0;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3); /* Efeito de profundidade */
+}
+
+/* Esta é a classe que tens no teu HTML a envolver as listas */
+.form-metadata {
+  display: flex;
+  justify-content: space-between; /* Espalha os itens de ponta a ponta */
+  align-items: center;
+  flex-wrap: wrap; /* Se o ecrã for pequeno, ajusta-se */
+}
+
+/* Estilo para os dados (Cronómetro, Combustível, etc) */
+.list-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+}
+
+.list-item dt {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #a0aec0; /* Subtítulo mais apagado */
+}
+
+.list-item dd {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 5px 0 0 0;
+  color: #63b3ed; /* Azul vibrante para os valores */
+}
+
+/* Checkbox do Debug */
+.debug-box label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #fc8181; /* Um tom avermelhado para avisar que é batota/debug */
+}
