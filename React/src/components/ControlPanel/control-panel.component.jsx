@@ -5,6 +5,8 @@ function ControlPanel({
   timeText = "15s",
   fuelText = "100",
   radarText = "Indisponível",
+  debug, // 1. Receber o valor atual do debug
+  onDebugChange, // 1. Receber a função que o pai enviou
 }) {
   return (
     <section id="panel-control">
