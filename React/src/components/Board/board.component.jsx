@@ -6,8 +6,9 @@ import Square from "../Square/square.componet";
 
 function Board({ title, debug = false }) {
   const squares = [];
+
+  // O BOARD_SIZE tem de ser obrigatoriamente 10 no teu ficheiro constants.js!
   for (let i = 0; i < BOARD_SIZE * BOARD_SIZE; i += 1) {
-    // Só para demonstrar CSS (remove depois quando ligares a lógica)
     let extraClass = "cell--unknown";
     if (i === 12) extraClass = "cell--miss";
     if (i === 44) extraClass = "cell--hit";
@@ -18,9 +19,10 @@ function Board({ title, debug = false }) {
   }
 
   return (
-    <section className="panel-board">
+    // Mudei panel-board para board-container e board para board-grid
+    <section className="board-container">
       <h3 className="board-title">{title}</h3>
-      <div className="board" role="grid" aria-label={title}>
+      <div className="board-grid" role="grid" aria-label={title}>
         {squares}
       </div>
     </section>

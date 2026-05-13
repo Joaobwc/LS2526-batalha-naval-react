@@ -1,20 +1,27 @@
-.panel-board {
-  padding: 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.03);
+.board-container {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  width: max-content !important;
+  height: max-content !important; /* MAGIA: A caixa adapta-se à altura da grelha! */
+  background-color: #1a202c;
+  padding: 20px 30px;
+  border-radius: 8px;
+  border: 1px solid #1e293b;
+  margin: 0 auto;
 }
 
-.board-title {
-  margin: 0 0 0.75rem;
-  font-size: 1.05rem;
-  opacity: 0.9;
+.board-container h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  text-align: center;
 }
 
-.board {
+.board-grid {
   display: grid;
-  grid-template-columns: repeat(10, 34px);
-  grid-template-rows: repeat(10, 34px);
-  gap: 6px;
-  justify-content: start;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 2px;
+  width: max-content;
+  background-color: #0369a1; /* Linhas da grelha */
+  border: 2px solid #0369a1;
 }

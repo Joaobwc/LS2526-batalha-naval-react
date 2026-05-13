@@ -21,7 +21,10 @@ function App() {
     <div id="container">
       <Header />
       <main>
-        <Setup />
+        {/* Envolvemos o Setup numa caixa limpa */}
+        <div className="setup-wrapper">
+          <Setup />
+        </div>
 
         <ControlPanel
           debug={debug}
@@ -32,8 +35,13 @@ function App() {
         />
 
         <section className="boards">
-          <Board title="Tabuleiro do Jogador" />
-          <Board title="Tabuleiro do Computador" debug />
+          {/* Envolvemos os Boards nas caixas cinzentas corretas */}
+          <div className="board-container">
+            <Board title="Tabuleiro do Jogador" />
+          </div>
+          <div className="board-container">
+            <Board title="Tabuleiro do Computador" debug={debug} />
+          </div>
         </section>
       </main>
     </div>
