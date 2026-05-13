@@ -1,63 +1,48 @@
-/* ============================================================
-   SETUP PANEL (container)
-   Afeta: <section id="panel-setup"> ... </section>
-   ============================================================ */
+.setup-wrapper {
+  width: 100%;
+}
+
 #panel-setup {
-  margin: 1rem 0;
-  padding: 1rem;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
-  background: rgba(240, 240, 240, 0.5);
+  margin: 1rem 0 2rem 0;
+  padding: 15px 20px;
+  border: 1px solid #1e293b;
+  border-radius: 8px;
+  background-color: #1a202c;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 #panel-setup h3 {
-  margin: 0 0 0.75rem;
-  color: #333;
+  margin: 0 0 15px 0;
+  color: #38bdf8;
 }
 
-/* ============================================================
-   FORM LAYOUT
-   Afeta: <form class="setup-form"> e grupos internos
-   ============================================================ */
+/* O Segredo: Deitar os campos do formulário */
 .setup-form {
-  display: grid;
-  gap: 0.75rem;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-end;
+  gap: 30px;
+  flex-wrap: wrap;
 }
 
 .setup-group {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 0.35rem;
 }
 
 .setup-label {
   font-weight: 600;
-  color: #333;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  text-transform: uppercase;
 }
 
-.setup-buttons {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
+.setup-buttons,
 .setup-actions {
   display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-/* ============================================================
-   INPUTS / SELECTS
-   Afeta: <input>, <select> dentro do #panel-setup
-   ============================================================ */
-#panel-setup input,
-#panel-setup select {
-  padding: 0.55rem 0.65rem;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  background: #ffffff;
-  color: #333;
-  font-size: 1rem;
+  gap: 10px;
 }
 
 #panel-setup input:focus,
@@ -76,95 +61,18 @@
    COR BASE: cinzento claro com borda escura
    ============================================================ */
 #panel-setup button {
-  padding: 0.55rem 0.8rem;
-  border-radius: 10px;
-  border: 1px solid #999;
-  background: #e8e8e8;
-  color: #333;
+  padding: 10px 20px;
+  border-radius: 6px;
+  border: 1px solid #0284c7;
+  background-color: #0ea5e9;
+  color: white;
+  font-weight: bold;
   cursor: pointer;
-  font-size: 0.95rem;
-  font-weight: 500;
-  transition:
-    background 150ms ease,
-    border-color 150ms ease,
-    transform 80ms ease;
+  transition: background-color 0.2s;
 }
 
 #panel-setup button:hover {
-  /* Hover genérico para TODOS os botões: mais claro */
-  background: #d0d0d0;
-  border-color: #666;
-}
-
-#panel-setup button:active {
-  /* Feedback visual ao clicar */
-  transform: translateY(1px);
-}
-
-/* ============================================================
-   BOTÕES DE ORIENTAÇÃO (classe específica)
-   Afeta: botões com class="setup-btn"
-   (no teu JSX: Horizontal/Vertical)
-   
-   COR BASE: cinzento claro
-   ============================================================ */
-.setup-btn {
-  padding: 0.55rem 0.8rem;
-  border-radius: 10px;
-  border: 1px solid #999;
-  background: #e8e8e8;
-  color: #333;
-  cursor: pointer;
-  font-size: 0.95rem;
-  font-weight: 500;
-  transition:
-    background 150ms ease,
-    border-color 150ms ease,
-    transform 80ms ease;
-}
-
-.setup-btn:hover {
-  /* Hover: mais claro, borda mais escura */
-  background: #d0d0d0;
-  border-color: #666;
-}
-
-.setup-btn:active {
-  /* Click: desce um bocado */
-  transform: translateY(1px);
-}
-
-/* ============================================================
-   ESTADO ATIVO (selecionado) — ORIENTAÇÃO
-   Afeta: botões com class="setup-btn is-active"
-   
-   COR ATIVA: azul para destacar que está escolhido
-   IMPORTANTE: Este seletor é muito específico para ganhar ao genérico
-   ============================================================ */
-#panel-setup .setup-btn.is-active {
-  background: #0066cc;
-  border-color: #004499;
-  color: #ffffff;
-}
-
-/* Hover no botão ativo: azul mais claro */
-#panel-setup .setup-btn.is-active:hover {
-  background: #0052a3;
-  border-color: #003d7a;
-  color: #ffffff;
-}
-
-/* ============================================================
-   DISABLED (botão desativado)
-   Afeta: qualquer botão dentro de #panel-setup com disabled
-   IMPORTANTE: seletor específico para ganhar ao genérico
-   ============================================================ */
-#panel-setup button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background: #cccccc !important; /* ← força o estilo */
-  border-color: #999 !important;
-  color: #999 !important;
+  background-color: #38bdf8;
 }
 
 #panel-setup button:disabled:hover {
@@ -178,8 +86,8 @@
    Afeta: <p class="setup-hint"> ... </p>
    ============================================================ */
 .setup-hint {
-  margin: 0.25rem 0 0;
-  opacity: 0.7;
-  font-size: 0.9rem;
-  color: #666;
+  margin: 15px 0 0;
+  opacity: 0.8;
+  font-size: 0.95rem;
+  width: 100%;
 }
