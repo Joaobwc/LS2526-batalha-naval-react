@@ -14,6 +14,18 @@ function App() {
   const [debug, setDebug] = React.useState(false);
   const [gameStarted, setGameStarted] = React.useState(false);
 
+  const [palyerInfo, setPlayerInfo] = useState({ name: "", orientation: "" });
+
+  //receber o valor do filho setup
+  const handleStartGame = (data) => {
+    console.log("handleStartGame Chamando com: ", data);
+    setPlayerInfo({
+      name: data.playerName,
+      orientation: data.orientation,
+    });
+    setGameStarted(true);
+  };
+
   const handleDebugChange = (valor) => {
     setDebug(valor);
   };
@@ -21,11 +33,12 @@ function App() {
     <div id="container">
       <Header />
       <main>
-        <Setup />
+        <Setup onStart={handleStartGame} />
 
         <ControlPanel
           debug={debug}
           onDebugChange={handleDebugChange}
+          gameStarted={gameStarted}
           timeText="15s"
           fuelText="100"
           radarText="Indisponível"

@@ -9,10 +9,10 @@ function Board({ title, debug = false }) {
   for (let i = 0; i < BOARD_SIZE * BOARD_SIZE; i += 1) {
     // Só para demonstrar CSS (remove depois quando ligares a lógica)
     let extraClass = "cell--unknown";
-    if (i === 12) extraClass = "cell--miss";
-    if (i === 44) extraClass = "cell--hit";
-    if (i === 77) extraClass = "cell--sunk";
-    if (debug && i === 23) extraClass = "cell--ship-debug";
+    if (i === 11) extraClass = "cell--miss";
+    if (i === 46) extraClass = "cell--hit";
+    if (i === 87) extraClass = "cell--sunk";
+    if (debug && i === 20) extraClass = "cell--ship-debug";
 
     squares.push(<Square key={i} className={extraClass} label={i} />);
   }
