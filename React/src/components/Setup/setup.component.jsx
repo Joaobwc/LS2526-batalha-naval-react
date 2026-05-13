@@ -1,7 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 import "./setup.css";
 
-function Setup() {
+function Setup({ onStart }) {
+  const [playerName, setPlayerName] = useState("");
+  const [orientation, setOrientation] = useState("H");
+
+  function handleNameChange(event) {
+    const nameString = event.currentTarget.value;
+    console.log("Nome:", nameString);
+    setPlayerName(nameString);
+  }
+
+  /*
+  Ou faço uma arrow func logo no envento
+  function handleOrientationChange() {
+    setOrientation ("v");
+  }
+  */
+
   return (
     <section id="panel-setup">
       <h3>Configuração Inicial</h3>
@@ -12,6 +28,8 @@ function Setup() {
           <input
             id="playerName"
             type="text"
+            value={playerName}
+            onChange={handleNameChange}
             placeholder="Ex.: Joao"
             autoComplete="off"
           />
@@ -20,8 +38,28 @@ function Setup() {
         <div className="setup-group">
           <span className="setup-label">Orientação:</span>
           <div className="setup-buttons">
-            <button type="button">Horizontal</button>
-            <button type="button">Vertical</button>
+            <button
+              type="button"
+              value={orientation}
+              className={`setup-btn ${orientation === "H" ? "is-active" : ""}`}
+              onClick={() => {
+                setOrientation("H");
+                console.log("Clik no botão Horizontal");
+              }}
+            >
+              Horizontal
+            </button>
+            <button
+              type="button"
+              value={orientation}
+              className={`setup-btn ${orientation === "V" ? "is-active" : ""}`}
+              onClick={() => {
+                console.log("Clik no botão Vertical");
+                setOrientation("V");
+              }}
+            >
+              Vertical
+            </button>
           </div>
         </div>
 
@@ -36,8 +74,21 @@ function Setup() {
         </div>
 
         <div className="setup-group setup-actions">
-          <button type="button">Iniciar Jogo</button>
-          <button type="button">Limpar</button>
+          <button
+            type="button"
+            disabled={playerName.trim() === ""}
+            onClick={() => onStart({ playerName, orientation })}
+          >
+            Iniciar Jogo
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              (setPlayerName(""), setOrientation("H"));
+            }}
+          >
+            Limpar
+          </button>
         </div>
 
         <p className="setup-hint">

@@ -45,6 +45,21 @@
   gap: 10px;
 }
 
+#panel-setup input:focus,
+#panel-setup select:focus {
+  outline: none;
+  border-color: #0066cc;
+  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
+}
+
+/* ============================================================
+   BOTÕES - ESTILO GENÉRICO
+   Afeta: QUALQUER <button> dentro do #panel-setup
+     - botões de orientação (Horizontal/Vertical)
+     - botões de ações (Iniciar Jogo / Limpar)
+   
+   COR BASE: cinzento claro com borda escura
+   ============================================================ */
 #panel-setup button {
   padding: 10px 20px;
   border-radius: 6px;
@@ -60,6 +75,16 @@
   background-color: #38bdf8;
 }
 
+#panel-setup button:disabled:hover {
+  /* Hover no botão disabled: não muda nada (stay cinzento) */
+  background: #cccccc !important;
+  border-color: #999 !important;
+}
+
+/* ============================================================
+   HINT / TEXTO DE AJUDA
+   Afeta: <p class="setup-hint"> ... </p>
+   ============================================================ */
 .setup-hint {
   margin: 15px 0 0;
   opacity: 0.8;
