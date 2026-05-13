@@ -7,6 +7,7 @@ function ControlPanel({
   radarText = "Indisponível",
   debug, // 1. Receber o valor atual do debug
   onDebugChange, // 1. Receber a função que o pai enviou
+  gameStarted,
 }) {
   return (
     <section id="panel-control">
