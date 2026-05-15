@@ -35,7 +35,7 @@ function App() {
       <main>
         {/* Envolvemos o Setup numa caixa limpa */}
         <div className="setup-wrapper">
-          <Setup />
+          <Setup onStart={handleStartGame} />
         </div>
 
         <ControlPanel

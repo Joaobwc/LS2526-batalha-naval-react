@@ -58,7 +58,7 @@
      - botões de orientação (Horizontal/Vertical)
      - botões de ações (Iniciar Jogo / Limpar)
    
-   COR BASE: cinzento claro com borda escura
+   COR BASE: azul claro com borda azul
    ============================================================ */
 #panel-setup button {
   padding: 10px 20px;
@@ -68,26 +68,50 @@
   color: white;
   font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
 }
 
-#panel-setup button:hover {
+/* HOVER - quando passa o rato (botão normal) */
+#panel-setup button:hover:not(:disabled) {
   background-color: #38bdf8;
-}
-
-#panel-setup button:disabled:hover {
-  /* Hover no botão disabled: não muda nada (stay cinzento) */
-  background: #cccccc !important;
-  border-color: #999 !important;
+  border-color: #0369a1;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
 }
 
 /* ============================================================
-   HINT / TEXTO DE AJUDA
-   Afeta: <p class="setup-hint"> ... </p>
+   ACTIVE / SELECTED (para botões de orientação)
+   Afeta: <button class="is-active"> ... </button>
+   
+   COR: verde ou amarelo para mostrar que está selecionado
    ============================================================ */
-.setup-hint {
-  margin: 15px 0 0;
-  opacity: 0.8;
-  font-size: 0.95rem;
-  width: 100%;
+#panel-setup button.is-active {
+  background-color: #10b981; /* Verde */
+  border-color: #047857;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+}
+
+#panel-setup button.is-active:hover {
+  background-color: #059669; /* Verde mais escuro */
+  border-color: #065f46;
+}
+
+/* ============================================================
+   DISABLED - quando o botão está desativado
+   Afeta: <button disabled> ... </button>
+   
+   APARÊNCIA: cinzento opaco, sem cursor
+   ============================================================ */
+#panel-setup button:disabled {
+  background-color: #64748b; /* Cinzento */
+  border-color: #475569;
+  color: #cbd5e1;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+#panel-setup button:disabled:hover {
+  /* Não muda nada ao fazer hover num botão disabled */
+  background-color: #64748b;
+  border-color: #475569;
+  box-shadow: none;
 }
