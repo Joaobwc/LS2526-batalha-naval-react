@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { REQUIRED_FLEET } from "../../constants";
 import { createEmptyBoard, createPlayer } from "../../helpers";
+import criarNavio from "../../helpers/criarNavio";
+import Board from "../Board/board.component";
 
 function Game() {
   const [player, setPlayer] = useState(function () {
@@ -8,12 +10,22 @@ function Game() {
   });
   const [playerBoard, setPlayerBoard] = useState(() => createEmptyBoard());
 
-  // Por agora ainda não há navios colocados (Fase 2)
-  const [playerShips, setPlayerShips] = useState([]);
+  const [navios, setNavios] = useState([
+    criarNavio(1, 3, 10, "h"),
+    criarNavio(2, 2, 45, "v"),
+  ]);
 
   return (
     <div style={{ padding: 16 }}>
       <h1>Batalha Naval Avançada</h1>
+
+      <div className="boards">
+        <Board
+          title="O Meu Tabuleiro"
+          ships={navios} // Passamos o estado 'navios' para a prop 'ships'
+          debug={true}
+        />
+      </div>
 
       <section>
         <h2>Estado (Fase 1)</h2>
@@ -36,7 +48,7 @@ function Game() {
           <strong>Board:</strong> {playerBoard.length} {playerBoard[0]?.length}
         </div>
         <div>
-          <strong>Navios colocados:</strong> {playerShips.length}
+          <strong>Navios colocados:</strong> {navios.length}
         </div>
       </section>
     </div>

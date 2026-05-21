@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./assets/styles/App.css";
+import criarNavio from "./helpers/criarNavio";
 
 import {
   Board,
@@ -8,13 +9,18 @@ import {
   GameOver,
   Header,
   Footer,
+  Game,
 } from "./components";
 
 function App() {
   const [debug, setDebug] = React.useState(false);
   const [gameStarted, setGameStarted] = React.useState(false);
 
-  const [palyerInfo, setPlayerInfo] = useState({ name: "", orientation: "" });
+  const [playerInfo, setPlayerInfo] = useState({ name: "", orientation: "" });
+  const [navios, setNavios] = useState([
+    criarNavio(1, 3, 10, "h"),
+    criarNavio(2, 2, 45, "v"),
+  ]);
 
   //receber o valor do filho setup
   const handleStartGame = (data) => {
@@ -50,10 +56,14 @@ function App() {
         <section className="boards">
           {/* Envolvemos os Boards nas caixas cinzentas corretas */}
           <div className="board-container">
-            <Board title="Tabuleiro do Jogador" />
+            <Board title="Tabuleiro do Jogador" ships={navios} debug={debug} />
           </div>
           <div className="board-container">
-            <Board title="Tabuleiro do Computador" debug={debug} />
+            <Board
+              title="Tabuleiro do Computador"
+              ships={navios}
+              debug={debug}
+            />
           </div>
         </section>
       </main>

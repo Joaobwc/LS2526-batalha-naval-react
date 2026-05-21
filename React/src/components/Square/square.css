@@ -56,3 +56,14 @@
 .cell--sunk {
   background: #991b1b;
 }
+
+.cell--ship {
+  background-color: #64748b !important; /* Um cinzento metálico para o navio */
+  border: 1px solid #94a3b8; /* Uma pequena borda para distinguir os blocos do navio */
+}
+
+/* Estilo para quando estás a testar (Debug) */
+.cell--ship-debug {
+  background-color: #22c55e !important; /* Um verde brilhante para saberes onde os navios estão */
+  opacity: 0.8;
+}
