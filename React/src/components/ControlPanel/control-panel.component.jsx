@@ -37,7 +37,13 @@ function ControlPanel({
 
         <div className="left debug-box">
           <label htmlFor="debugToggle">
-            <input id="debugToggle" type="checkbox" />
+            <input
+              id="debugToggle"
+              type="checkbox"
+              checked={debug}
+              disabled={!gameStarted}
+              onChange={onDebugChange}
+            />
             Debug (mostrar frota do PC)
           </label>
         </div>

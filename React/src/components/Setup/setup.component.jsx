@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./setup.css";
 
-function Setup({ onStart }) {
+function Setup({ onStart, gameStarted, selectedBoard, onBoardChange }) {
   const [playerName, setPlayerName] = useState("");
   const [orientation, setOrientation] = useState("H");
 
@@ -32,15 +32,15 @@ function Setup({ onStart }) {
             onChange={handleNameChange}
             placeholder="Ex.: Joao"
             autoComplete="off"
+            //gameStared = false, quando passa a true o disabled={true}
+            disabled={gameStarted}
           />
         </div>
-
         <div className="setup-group">
           <span className="setup-label">Orientação:</span>
           <div className="setup-buttons">
             <button
               type="button"
-              value={orientation}
               className={`setup-btn ${orientation === "H" ? "is-active" : ""}`}
               onClick={() => {
                 setOrientation("H");
@@ -51,7 +51,6 @@ function Setup({ onStart }) {
             </button>
             <button
               type="button"
-              value={orientation}
               className={`setup-btn ${orientation === "V" ? "is-active" : ""}`}
               onClick={() => {
                 console.log("Clik no botão Vertical");
@@ -62,35 +61,31 @@ function Setup({ onStart }) {
             </button>
           </div>
         </div>
-
         <div className="setup-group">
           <span className="setup-label">Computador:</span>
-          <select>
-            <option value="0">Tabuleiro pré-definido #1</option>
-            <option value="1">Tabuleiro pré-definido #2</option>
-            <option value="2">Tabuleiro pré-definido #3</option>
-            <option value="random">Frota aleatória</option>
+          <select
+            value={selectedBoard}
+            disabled={gameStarted}
+            onChange={onBoardChange}
+          >
+            <option value="1">Tabuleiro pré-definido #1</option>
+            <option value="2">Tabuleiro pré-definido #2</option>
+            <option value="3">Tabuleiro pré-definido #3</option>
+            <option value="4">Frota aleatória</option>
           </select>
         </div>
-
         <div className="setup-group setup-actions">
           <button
             type="button"
+            className={`setup-action-btn ${
+              gameStarted ? "is-danger" : "is-primary"
+            }`}
             disabled={playerName.trim() === ""}
             onClick={() => onStart({ playerName, orientation })}
           >
-            Iniciar Jogo
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              (setPlayerName(""), setOrientation("H"));
-            }}
-          >
-            Limpar
+            {gameStarted ? "Terminar Jogo" : "Iniciar Jogo"}
           </button>
         </div>
-
         <p className="setup-hint">
           Posiciona a frota clicando no teu tabuleiro (ainda sem lógica).
         </p>

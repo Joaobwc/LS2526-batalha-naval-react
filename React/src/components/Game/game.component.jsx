@@ -1,54 +1,115 @@
 import { useState } from "react";
-import { REQUIRED_FLEET } from "../../constants";
-import { createEmptyBoard, createPlayer } from "../../helpers";
-import criarNavio from "../../helpers/criarNavio";
-import Board from "../Board/board.component";
+import { FUEL, REQUIRED_FLEET } from "../../constants";
+import { createEmptyBoard, createPlayer, criarNavio } from "../../helpers";
+import { Setup, ControlPanel, Board } from "../../components";
 
 function Game() {
-  const [player, setPlayer] = useState(function () {
-    return createPlayer("");
+  //Variáveis de estado
+  const [debug, setDebug] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false);
+
+  const [palyerInfo, setPlayerInfo] = useState({
+    name: "",
+    orientation: "",
+    fuel: FUEL.MAX,
+    moveCount: 0,
+    radarCharges: 0,
   });
-  const [playerBoard, setPlayerBoard] = useState(() => createEmptyBoard());
 
   const [navios, setNavios] = useState([
     criarNavio(1, 3, 10, "h"),
     criarNavio(2, 2, 45, "v"),
   ]);
 
-  return (
-    <div style={{ padding: 16 }}>
-      <h1>Batalha Naval Avançada</h1>
+  //Tabuleito pre-definido do computador
+  const [selectedBoard, setSelectedBoard] = useState("1");
 
-      <div className="boards">
-        <Board
-          title="O Meu Tabuleiro"
-          ships={navios} // Passamos o estado 'navios' para a prop 'ships'
-          debug={true}
+  // const [player, setPlayer] = useState(function () {
+  // return createPlayer("");
+  //});
+  ///const [playerBoard, setPlayerBoard] = useState(() => createEmptyBoard());
+
+  //Funções auxiliares dos handlers
+
+  //reset do jogo
+  const resetJogo = () => {
+    setGameStarted(false);
+    setDebug(false);
+    setSelectedBoard("1");
+    setPlayerInfo({
+      name: "",
+      orientation: "",
+      fuel: FUEL.MAX,
+      moveCount: 0,
+      radarCharges: 0,
+    });
+    setNavios([criarNavio(1, 3, 10, "h"), criarNavio(2, 2, 45, "v")]);
+  };
+  //handlers(calbacks)
+
+  //trocar o valor do Board ao mudar
+  const handleBoardChange = (e) => {
+    const value = e.currentTarget.value;
+    console.log("handleboardgame chamado com: ", value);
+
+    setSelectedBoard(value);
+  };
+
+  const handleStartGame = (data) => {
+    //se game true então termina o jogo e faz reset dos inputs
+    if (gameStarted) {
+      resetJogo();
+
+      console.log("handleStartGame Chamando com: ", data);
+
+      return;
+    }
+    //iniciar jogo
+    setPlayerInfo({
+      name: data.playerName,
+      orientation: data.orientation,
+      fuel: FUEL.MAX,
+      moveCount: 0,
+      radarCharges: 0,
+    });
+    setGameStarted(true);
+
+    console.log("handleStartGame Chamando com: ", data);
+  };
+
+  const handleDebugChange = (e) => {
+    const isChecked = e.currentTarget.checked;
+    console.log("handleDebugChange chamado com: ", isChecked);
+
+    setDebug(isChecked);
+  };
+
+  return (
+    <div>
+      <div className="setup-wrapper">
+        <Setup
+          gameStarted={gameStarted}
+          onStart={handleStartGame}
+          selectedBoard={selectedBoard}
+          onBoardChange={handleBoardChange}
         />
       </div>
 
-      <section>
-        <h2>Estado (Fase 1)</h2>
-        <div>
-          <strong>Nome:</strong> {player.name || "(por definir)"}
+      <ControlPanel
+        debug={debug}
+        onDebugChange={handleDebugChange}
+        gameStarted={gameStarted}
+        timeText="15s"
+        fuelText={`${palyerInfo.fuel}`}
+        radarText="Indisponível"
+      />
+
+      <section className="boards">
+        <div className="board-container">
+          <Board title="Tabuleiro do Jogador" ships={navios} debug={debug} />
         </div>
-        <div>
-          <strong>Combustível:</strong> {player.fuel}
-        </div>
-        <div>
-          <strong>Tiros do jogador:</strong> {player.playerShots}
-        </div>
-        <div>
-          <strong>Radar charges:</strong> {player.radarCharges}
-        </div>
-        <div>
-          <strong>Frota obrigatória:</strong> {REQUIRED_FLEET.join(", ")}
-        </div>
-        <div>
-          <strong>Board:</strong> {playerBoard.length} {playerBoard[0]?.length}
-        </div>
-        <div>
-          <strong>Navios colocados:</strong> {navios.length}
+        <div className="board-container">
+          <Board title="Tabuleiro do Computador" ships={navios} debug={debug} />
         </div>
       </section>
     </div>
