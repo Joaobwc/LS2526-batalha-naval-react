@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { FUEL, REQUIRED_FLEET } from "../../constants";
-import { createEmptyBoard, createPlayer, criarNavio } from "../../helpers";
+import {
+  createEmptyBoard,
+  createPlayer,
+  criarNavio,
+  existeNavio,
+} from "../../helpers";
 import { Setup, ControlPanel, Board } from "../../components";
 
 function Game() {
@@ -16,10 +21,14 @@ function Game() {
     radarCharges: 0,
   });
 
-  const [navios, setNavios] = useState([
-    criarNavio(1, 3, 10, "h"),
-    criarNavio(2, 2, 45, "v"),
-  ]);
+  // const [navios, setNavios] = useState([]);
+
+  const [tamanhoFrota, setTamanhoFrota] = useState(0);
+  const [naviosAtingidos, setNaviosAtingidos] = useState(0);
+  const [playerShips, setPlayerShips] = useState([]);
+  const [computerShips, setComputerShips] = useState([]);
+  const [orientation, setOrientation] = useState("H");
+  const [tirosNoComputador, setTirosNoComputador] = useState([]);
 
   //Tabuleito pre-definido do computador
   const [selectedBoard, setSelectedBoard] = useState("1");
@@ -38,14 +47,40 @@ function Game() {
     setSelectedBoard("1");
     setPlayerInfo({
       name: "",
-      orientation: "",
+      orientation: "H",
       fuel: FUEL.MAX,
       moveCount: 0,
       radarCharges: 0,
     });
-    setNavios([criarNavio(1, 3, 10, "h"), criarNavio(2, 2, 45, "v")]);
+    setPlayerShips([]);
+    setComputerShips([]);
+    setNaviosAtingidos(0);
   };
   //handlers(calbacks)
+
+  const handlePlaceShip = (index) => {
+    if (playerShips.length === REQUIRED_FLEET) {
+      // Verificar se já atingiu o limite de navios
+      console.log("Limite de navios atingido! Já não podes colocar mais.");
+      return;
+    }
+    const tamanhosPredefinidos = [4, 3, 2, 1]; // Definir o tamanho dos barcos
+
+    // Vamos buscar o tamanho correspondente à quantidade de barcos que já temos
+    const tamanhoDoBarco = tamanhosPredefinidos[playerShips.length] || 2; // Caso falhe, assume tamanho 2
+
+    // Passamos o ID, o tamanho calculado, o index (clique) e a orientação em minúsculas
+    const novoNavio = criarNavio(
+      playerShips.length + 1, // ID (1, 2, 3...)
+      tamanhoDoBarco, // Tamanho do barco atual
+      index, // Posição onde o jogador clicou
+      palyerInfo.orientation.toLowerCase(), // Orientação convertida para "h" ou "v"
+    );
+
+    // TAREFA D: Atualizar o estado do React adicionando o novo navio ao array
+    setPlayerShips((prevShips) => [...prevShips, novoNavio]);
+    console.log("Navio colocado com sucesso:", novoNavio);
+  };
 
   //trocar o valor do Board ao mudar
   const handleBoardChange = (e) => {
@@ -56,6 +91,8 @@ function Game() {
   };
 
   const handleStartGame = (data) => {
+    let frotaComputador = [];
+
     //se game true então termina o jogo e faz reset dos inputs
     if (gameStarted) {
       resetJogo();
@@ -64,6 +101,34 @@ function Game() {
 
       return;
     }
+
+    if (selectedBoard === "1") {
+      frotaComputador = [
+        criarNavio(1, 4, 1, "h"),
+        criarNavio(2, 3, 34, "v"),
+        criarNavio(3, 2, 67, "h"),
+        criarNavio(4, 1, 89, "h"),
+      ];
+    } else if (selectedBoard === "2") {
+      frotaComputador = [
+        criarNavio(1, 4, 5, "v"),
+        criarNavio(2, 3, 41, "h"),
+        criarNavio(3, 2, 73, "v"),
+        criarNavio(4, 1, 19, "h"),
+      ];
+    } else {
+      // Frota aleatória, falta fazer
+      // Tabuleiros 3, 4 ou padrão caso não coincida
+      frotaComputador = [
+        criarNavio(1, 3, 20, "h"),
+        criarNavio(2, 2, 55, "v"),
+        criarNavio(3, 4, 0, "h"),
+        criarNavio(4, 1, 99, "h"),
+      ];
+    }
+
+    setComputerShips(frotaComputador);
+
     //iniciar jogo
     setPlayerInfo({
       name: data.playerName,
@@ -75,6 +140,51 @@ function Game() {
     setGameStarted(true);
 
     console.log("handleStartGame Chamando com: ", data);
+  };
+
+  // Contar o tamanho da frota do inimigo
+  let tam = 0;
+  for (let i = 0; i < computerShips.length; i++) {
+    tam = tam + computerShips[i].size;
+  }
+
+  const handleAtaqueComputador = (index) => {
+    // Só permite disparar se o jogo já tiver começado!
+    if (!gameStarted) return;
+    //console.log(frotaComputador.length);
+
+    // 1. VERIFICAÇÃO: Chama a função 'existe' para ver se o tiro acertou
+    // (Tens de garantir que a função 'existe' também está escrita ou importada no Game)
+    const acerta = existeNavio(computerShips, index);
+    if (existeNavio(computerShips, index)) {
+      // Contar quantos navios acertou
+      setNaviosAtingidos((prev) => prev + 1);
+      console.log(naviosAtingidos);
+    }
+
+    if (naviosAtingidos === tam) {
+      console.log("Parabéns! Você afundou toda a frota inimiga!");
+      resetJogo();
+    }
+
+    // 2. GUARDAR O CLIQUE: Faz exatamente o mesmo que a tua função fazia,
+    // mas atualiza o estado global de tiros do Game
+    setTirosNoComputador((prev) =>
+      prev.includes(index) ? prev : [...prev, index],
+    );
+
+    // 3. REGRAS DO JOGO: Como estamos no Game, aproveitamos para gastar
+    // combustível e contar a jogada no teu estado 'palyerInfo'
+    setPlayerInfo((prev) => ({
+      ...prev,
+      fuel: prev.fuel - 1, // Desconta 1 de combustível
+      moveCount: prev.moveCount + 1, // Soma 1 ao contador de movimentos
+    }));
+
+    // O teu console.log original adaptado para o Game
+    console.log(
+      `Célula ${index} do Computador clicada: ${acerta ? "HIT" : "MISS"}`,
+    );
   };
 
   const handleDebugChange = (e) => {
@@ -92,6 +202,10 @@ function Game() {
           onStart={handleStartGame}
           selectedBoard={selectedBoard}
           onBoardChange={handleBoardChange}
+          orientation={palyerInfo.orientation}
+          onOrientationChange={(newOrientation) => {
+            setPlayerInfo((prev) => ({ ...prev, orientation: newOrientation }));
+          }}
         />
       </div>
 
@@ -106,10 +220,31 @@ function Game() {
 
       <section className="boards">
         <div className="board-container">
-          <Board title="Tabuleiro do Jogador" ships={navios} debug={debug} />
+          {/* TABULEIRO DO JOGADOR: 
+              - Usa o estado 'playerShips'.
+              - debug={true} para o jogador ver sempre onde estão os seus barcos.
+              - Se o jogo NÃO começou, o clique coloca barcos (handlePlaceShip). Se começou, não faz nada. */}
+          <Board
+            title="Tabuleiro do Jogador"
+            ships={playerShips}
+            debug={true}
+            onSquareClick={!gameStarted ? handlePlaceShip : () => {}} // Só permite se o gameStarted for false
+            clicks={[]}
+          />
         </div>
+
         <div className="board-container">
-          <Board title="Tabuleiro do Computador" ships={navios} debug={debug} />
+          {/* TABULEIRO DO COMPUTADOR:
+              - Usa o estado 'computerShips'.
+              - debug usa o estado real (só mostra a frota do PC se o botão Debug estiver ativo).
+              - O clique ativa a função de ataque ao computador. */}
+          <Board
+            title="Tabuleiro do Computador"
+            ships={computerShips}
+            debug={debug}
+            onSquareClick={gameStarted ? handleAtaqueComputador : () => {}} // Só permite se o gameStarted for true
+            clicks={tirosNoComputador}
+          />
         </div>
       </section>
     </div>

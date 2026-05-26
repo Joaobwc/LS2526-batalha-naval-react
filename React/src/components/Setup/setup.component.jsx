@@ -1,9 +1,15 @@
 import React, { useState } from "react";
 import "./setup.css";
 
-function Setup({ onStart, gameStarted, selectedBoard, onBoardChange }) {
+function Setup({
+  onStart,
+  gameStarted,
+  selectedBoard,
+  onBoardChange,
+  orientation,
+  onOrientationChange,
+}) {
   const [playerName, setPlayerName] = useState("");
-  const [orientation, setOrientation] = useState("H");
 
   function handleNameChange(event) {
     const nameString = event.currentTarget.value;
@@ -43,7 +49,7 @@ function Setup({ onStart, gameStarted, selectedBoard, onBoardChange }) {
               type="button"
               className={`setup-btn ${orientation === "H" ? "is-active" : ""}`}
               onClick={() => {
-                setOrientation("H");
+                onOrientationChange("H");
                 console.log("Clik no botão Horizontal");
               }}
             >
@@ -53,8 +59,8 @@ function Setup({ onStart, gameStarted, selectedBoard, onBoardChange }) {
               type="button"
               className={`setup-btn ${orientation === "V" ? "is-active" : ""}`}
               onClick={() => {
+                onOrientationChange("V");
                 console.log("Clik no botão Vertical");
-                setOrientation("V");
               }}
             >
               Vertical
