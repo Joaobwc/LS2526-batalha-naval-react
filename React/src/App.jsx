@@ -1,35 +1,46 @@
 import React, { useState } from "react";
 import "./assets/styles/App.css";
-import criarNavio from "./helpers/criarNavio";
+//import criarNavio from "./helpers/criarNavio";
 
-import {
-  Board,
-  ControlPanel,
-  Setup,
-  GameOver,
-  Header,
-  Footer,
-  Game,
-} from "./components";
+import { Header, Footer, Game } from "./components";
 
 function App() {
-  const [debug, setDebug] = React.useState(false);
-  const [gameStarted, setGameStarted] = React.useState(false);
+  /*
+  const [debug, setDebug] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false);
 
-  const [playerInfo, setPlayerInfo] = useState({ name: "", orientation: "" });
+  const [playerInfo, setPlayerInfo] = useState({
+    name: "",
+    orientation: "",
+    fuel: FUEL.MAX,
+    moveCount: 0,
+    radarCharges: 0,
+  });
   const [navios, setNavios] = useState([
     criarNavio(1, 3, 10, "h"),
     criarNavio(2, 2, 45, "v"),
   ]);
 
-  //receber o valor do filho setup
+  //Var para o tabuleito pre-definido do computador
+  const [selectedBoard, setSelectedBoard] = useState("1");
+
+  //ALterar o valor do tabuleiro quando alterado
+  const handleBoardChange = (e) => {
+    const value = e.currentTarget.value;
+    console.log("handleboardgame chamado com: ", value);
+    setSelectedBoard(value);
+  };
+  //receber o valor do filho setup do inicio do jogo
   const handleStartGame = (data) => {
     console.log("handleStartGame Chamando com: ", data);
-    setPlayerInfo({
-      name: data.playerName,
-      orientation: data.orientation,
-    });
-    setGameStarted(true);
+    if (gameStarted) setGameStarted(false);
+    else {
+      setPlayerInfo({
+        name: data.playerName,
+        orientation: data.orientation,
+      });
+      setGameStarted(true),  ;
+    }
   };
 
   const handleDebugChange = (valor) => {
@@ -39,9 +50,13 @@ function App() {
     <div id="container">
       <Header />
       <main>
-        {/* Envolvemos o Setup numa caixa limpa */}
         <div className="setup-wrapper">
-          <Setup onStart={handleStartGame} />
+          <Setup
+            gameStarted={gameStarted}
+            onStart={handleStartGame}
+            selectedBoard={selectedBoard}
+            onBoardChange={handleBoardChange}
+          />
         </div>
 
         <ControlPanel
@@ -54,7 +69,6 @@ function App() {
         />
 
         <section className="boards">
-          {/* Envolvemos os Boards nas caixas cinzentas corretas */}
           <div className="board-container">
             <Board title="Tabuleiro do Jogador" ships={navios} debug={debug} />
           </div>
@@ -67,6 +81,16 @@ function App() {
           </div>
         </section>
       </main>
+    </div>
+  );
+  */
+  return (
+    <div id="container">
+      <Header />
+      <main>
+        <Game />
+      </main>
+      <Footer />
     </div>
   );
 }
