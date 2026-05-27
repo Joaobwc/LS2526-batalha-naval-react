@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FUEL, REQUIRED_FLEET } from "../../constants";
+import { FUEL, TIMER, REQUIRED_FLEET } from "../../constants";
 import {
   createEmptyBoard,
   createPlayer,
@@ -13,7 +13,7 @@ function Game() {
   const [debug, setDebug] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
 
-  const [palyerInfo, setPlayerInfo] = useState({
+  const [playerInfo, setPlayerInfo] = useState({
     name: "",
     orientation: "",
     fuel: FUEL.MAX,
@@ -21,10 +21,8 @@ function Game() {
     radarCharges: 0,
   });
 
-  // const [navios, setNavios] = useState([]);
-
   const [tamanhoFrota, setTamanhoFrota] = useState(0);
-  const [naviosAtingidos, setNaviosAtingidos] = useState(0);
+  const [naviosAtingidos, setNaviosAtingidos] = useState(1);
   const [playerShips, setPlayerShips] = useState([]);
   const [computerShips, setComputerShips] = useState([]);
   const [orientation, setOrientation] = useState("H");
@@ -55,6 +53,7 @@ function Game() {
     setPlayerShips([]);
     setComputerShips([]);
     setNaviosAtingidos(0);
+    setTirosNoComputador([]);
   };
   //handlers(calbacks)
 
@@ -74,7 +73,7 @@ function Game() {
       playerShips.length + 1, // ID (1, 2, 3...)
       tamanhoDoBarco, // Tamanho do barco atual
       index, // Posição onde o jogador clicou
-      palyerInfo.orientation.toLowerCase(), // Orientação convertida para "h" ou "v"
+      playerInfo.orientation.toLowerCase(), // Orientação convertida para "h" ou "v"
     );
 
     // TAREFA D: Atualizar o estado do React adicionando o novo navio ao array
@@ -153,33 +152,42 @@ function Game() {
     if (!gameStarted) return;
     //console.log(frotaComputador.length);
 
-    // 1. VERIFICAÇÃO: Chama a função 'existe' para ver se o tiro acertou
-    // (Tens de garantir que a função 'existe' também está escrita ou importada no Game)
+    // Chama a função 'existeNavio' para ver se o tiro acertou
     const acerta = existeNavio(computerShips, index);
     if (existeNavio(computerShips, index)) {
-      // Contar quantos navios acertou
-      setNaviosAtingidos((prev) => prev + 1);
-      console.log(naviosAtingidos);
+      setNaviosAtingidos((prev) => prev + 1); // Contar quantos navios acertou
+
+      if (playerInfo.fuel < 100) {
+        if (playerInfo.fuel + 10 > FUEL.MAX) {
+          //console.log("comb", diferenca_combustivel);
+          setPlayerInfo(() => ({
+            fuel: FUEL.MAX,
+          }));
+        } else if (playerInfo.fuel === FUEL.MAX) {
+          setPlayerInfo(() => ({
+            fuel: FUEL.MAX,
+          }));
+        } else if (playerInfo) {
+          setPlayerInfo(() => ({
+            fuel: playerInfo.fuel + FUEL.HIT_REWARD,
+          }));
+        }
+      }
+
+      console.log("Navios atingidos: ", naviosAtingidos);
+    } else {
+      setPlayerInfo((prev) => ({ ...prev, fuel: prev.fuel - FUEL.SHOT_COST }));
     }
 
     if (naviosAtingidos === tam) {
-      console.log("Parabéns! Você afundou toda a frota inimiga!");
+      console.log("Parabéns! Você afundou toda a frota inimiga!", tam);
       resetJogo();
     }
 
-    // 2. GUARDAR O CLIQUE: Faz exatamente o mesmo que a tua função fazia,
-    // mas atualiza o estado global de tiros do Game
+    // 2. GUARDAR O CLIQUE: Faz exatamente o mesmo que a tua função fazia, mas atualiza o estado global de tiros do Game
     setTirosNoComputador((prev) =>
       prev.includes(index) ? prev : [...prev, index],
     );
-
-    // 3. REGRAS DO JOGO: Como estamos no Game, aproveitamos para gastar
-    // combustível e contar a jogada no teu estado 'palyerInfo'
-    setPlayerInfo((prev) => ({
-      ...prev,
-      fuel: prev.fuel - 1, // Desconta 1 de combustível
-      moveCount: prev.moveCount + 1, // Soma 1 ao contador de movimentos
-    }));
 
     // O teu console.log original adaptado para o Game
     console.log(
@@ -202,7 +210,7 @@ function Game() {
           onStart={handleStartGame}
           selectedBoard={selectedBoard}
           onBoardChange={handleBoardChange}
-          orientation={palyerInfo.orientation}
+          orientation={playerInfo.orientation}
           onOrientationChange={(newOrientation) => {
             setPlayerInfo((prev) => ({ ...prev, orientation: newOrientation }));
           }}
@@ -214,7 +222,7 @@ function Game() {
         onDebugChange={handleDebugChange}
         gameStarted={gameStarted}
         timeText="15s"
-        fuelText={`${palyerInfo.fuel}`}
+        fuelText={`${playerInfo.fuel}`}
         radarText="Indisponível"
       />
 
