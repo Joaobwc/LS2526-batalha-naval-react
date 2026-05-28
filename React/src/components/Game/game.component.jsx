@@ -192,19 +192,6 @@ function Game() {
     setTirosNoComputador((prev) =>
       prev.includes(index) ? prev : [...prev, index],
     );
-
-    // 3. REGRAS DO JOGO: Como estamos no Game, aproveitamos para gastar
-    // combustível e contar a jogada no teu estado 'playerInfo'
-    setPlayerInfo((prev) => ({
-      ...prev,
-      fuel: prev.fuel - 5, // Desconta 1 de combustível
-      moveCount: prev.moveCount + 1, // Soma 1 ao contador de movimentos
-    }));
-
-    // O teu console.log original adaptado para o Game
-    console.log(
-      `Célula ${index} do Computador clicada: ${acerta ? "HIT" : "MISS"}`,
-    );
   };
 
   const handleDebugChange = (e) => {
