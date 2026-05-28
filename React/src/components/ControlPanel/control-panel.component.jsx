@@ -1,14 +1,22 @@
 import React from "react";
 import "./controlPanel.css";
+import Timer from "../Timer/timer.component";
+import { TURN } from "../../constants";
 
 function ControlPanel({
-  timeText = "15s",
+  timeout,
   fuelText = "100",
   radarText = "Indisponível",
   debug, // 1. Receber o valor atual do debug
   onDebugChange, // 1. Receber a função que o pai enviou
   gameStarted,
+  onTimerTick,
+  isPlayerTurn,
 }) {
+  const handleTimer = (seconds) => {
+    if (onTimerTick) onTimerTick(seconds);
+  };
+
   return (
     <section id="panel-control">
       <h3 className="sr-only">Painel de Informações</h3>
@@ -16,7 +24,12 @@ function ControlPanel({
       <div className="form-metadata">
         <dl className="list-item left">
           <dt>Cronómetro:</dt>
-          <dd id="turnTime">{timeText}</dd>
+          <dd id="turnTime">
+            {gameStarted && isPlayerTurn && (
+              <Timer timeout={timeout} onTimer={handleTimer} />
+            )}
+            s
+          </dd>
         </dl>
 
         <dl className="list-item right">

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { FUEL, TIMER, REQUIRED_FLEET } from "../../constants";
+import { use, useEffect, useState } from "react";
+import { FUEL, REQUIRED_FLEET, TURN, TIMER } from "../../constants";
 import {
   createEmptyBoard,
   createPlayer,
@@ -13,7 +13,9 @@ function Game() {
   const [debug, setDebug] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
 
-  const [playerInfo, setPlayerInfo] = useState({
+  const [playerName, setPlayerName] = useState("");
+
+  const [palyerInfo, setPlayerInfo] = useState({
     name: "",
     orientation: "",
     fuel: FUEL.MAX,
@@ -31,10 +33,9 @@ function Game() {
   //Tabuleito pre-definido do computador
   const [selectedBoard, setSelectedBoard] = useState("1");
 
-  // const [player, setPlayer] = useState(function () {
-  // return createPlayer("");
-  //});
-  ///const [playerBoard, setPlayerBoard] = useState(() => createEmptyBoard());
+  //de quem é a vez
+  const [turn, setTurn] = useState(TURN.PLAYER);
+  const [timeLeft, setTimeLeft] = useState(TIMER.TURN_SECONDS);
 
   //Funções auxiliares dos handlers
 
@@ -43,6 +44,7 @@ function Game() {
     setGameStarted(false);
     setDebug(false);
     setSelectedBoard("1");
+    setPlayerName("");
     setPlayerInfo({
       name: "",
       orientation: "H",
@@ -54,11 +56,13 @@ function Game() {
     setComputerShips([]);
     setNaviosAtingidos(0);
     setTirosNoComputador([]);
+    setTurn(TURN.PLAYER);
+    setTimeLeft(TIMER.TURN_SECONDS);
   };
   //handlers(calbacks)
 
   const handlePlaceShip = (index) => {
-    if (playerShips.length === REQUIRED_FLEET) {
+    if (playerShips.length === REQUIRED_FLEET.length) {
       // Verificar se já atingiu o limite de navios
       console.log("Limite de navios atingido! Já não podes colocar mais.");
       return;
@@ -189,6 +193,14 @@ function Game() {
       prev.includes(index) ? prev : [...prev, index],
     );
 
+    // 3. REGRAS DO JOGO: Como estamos no Game, aproveitamos para gastar
+    // combustível e contar a jogada no teu estado 'palyerInfo'
+    setPlayerInfo((prev) => ({
+      ...prev,
+      fuel: prev.fuel - 5, // Desconta 1 de combustível
+      moveCount: prev.moveCount + 1, // Soma 1 ao contador de movimentos
+    }));
+
     // O teu console.log original adaptado para o Game
     console.log(
       `Célula ${index} do Computador clicada: ${acerta ? "HIT" : "MISS"}`,
@@ -202,6 +214,42 @@ function Game() {
     setDebug(isChecked);
   };
 
+  const handleTimerTick = (seconds) => {
+    //contar só o tempo do jogador
+    if (!gameStarted) return;
+    if (turn != TURN.PLAYER) return;
+
+    setTimeLeft(seconds);
+
+    if (seconds === 0) {
+      // retirar -5 de combustivel
+      /*setPlayerInfo(() => {
+        fuel: palyerInfo.fuel - FUEL.TIMEOUT_PENALTY;
+      });
+      */
+
+      setPlayerInfo((prev) => ({
+        ...prev,
+        fuel: Math.max(0, prev.fuel - FUEL.TIMEOUT_PENALTY),
+      }));
+      setTurn(TURN.COMPUTER);
+      setTimeLeft(TIMER.TURN_SECONDS);
+    }
+  };
+
+  //Mudar a vez do PC para PLayer
+  useEffect(() => {
+    if (!gameStarted) return;
+    if (turn !== TURN.COMPUTER) return;
+
+    const t = setTimeout(() => {
+      setTurn(TURN.PLAYER);
+      setTimeLeft(TIMER.TURN_SECONDS);
+    }, 500);
+
+    return () => clearTimeout(t);
+  }, [gameStarted, turn]);
+
   return (
     <div>
       <div className="setup-wrapper">
@@ -214,6 +262,8 @@ function Game() {
           onOrientationChange={(newOrientation) => {
             setPlayerInfo((prev) => ({ ...prev, orientation: newOrientation }));
           }}
+          playerName={playerName}
+          onPlayerNameChange={setPlayerName}
         />
       </div>
 
@@ -221,9 +271,11 @@ function Game() {
         debug={debug}
         onDebugChange={handleDebugChange}
         gameStarted={gameStarted}
-        timeText="15s"
-        fuelText={`${playerInfo.fuel}`}
+        timeout={TIMER.TURN_SECONDS}
+        fuelText={`${palyerInfo.fuel}`}
         radarText="Indisponível"
+        onTimerTick={handleTimerTick}
+        isPlayerTurn={turn == TURN.PLAYER}
       />
 
       <section className="boards">
