@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-import { useState } from "react";
-import { FUEL, TIMER, REQUIRED_FLEET } from "../../constants";
-=======
 import { use, useEffect, useState } from "react";
 import { FUEL, REQUIRED_FLEET, TURN, TIMER } from "../../constants";
->>>>>>> a441f9e (Implementação comp. Timer e Fix do reset de inputs no Setup)
 import {
   createEmptyBoard,
   createPlayer,
@@ -18,13 +13,9 @@ function Game() {
   const [debug, setDebug] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
 
-<<<<<<< HEAD
-  const [playerInfo, setPlayerInfo] = useState({
-=======
   const [playerName, setPlayerName] = useState("");
 
   const [palyerInfo, setPlayerInfo] = useState({
->>>>>>> a441f9e (Implementação comp. Timer e Fix do reset de inputs no Setup)
     name: "",
     orientation: "",
     fuel: FUEL.MAX,
@@ -64,12 +55,9 @@ function Game() {
     setPlayerShips([]);
     setComputerShips([]);
     setNaviosAtingidos(0);
-<<<<<<< HEAD
     setTirosNoComputador([]);
-=======
     setTurn(TURN.PLAYER);
     setTimeLeft(TIMER.TURN_SECONDS);
->>>>>>> a441f9e (Implementação comp. Timer e Fix do reset de inputs no Setup)
   };
   //handlers(calbacks)
 
@@ -205,8 +193,6 @@ function Game() {
       prev.includes(index) ? prev : [...prev, index],
     );
 
-<<<<<<< HEAD
-=======
     // 3. REGRAS DO JOGO: Como estamos no Game, aproveitamos para gastar
     // combustível e contar a jogada no teu estado 'palyerInfo'
     setPlayerInfo((prev) => ({
@@ -215,7 +201,6 @@ function Game() {
       moveCount: prev.moveCount + 1, // Soma 1 ao contador de movimentos
     }));
 
->>>>>>> a441f9e (Implementação comp. Timer e Fix do reset de inputs no Setup)
     // O teu console.log original adaptado para o Game
     console.log(
       `Célula ${index} do Computador clicada: ${acerta ? "HIT" : "MISS"}`,
@@ -286,13 +271,8 @@ function Game() {
         debug={debug}
         onDebugChange={handleDebugChange}
         gameStarted={gameStarted}
-<<<<<<< HEAD
-        timeText="15s"
-        fuelText={`${playerInfo.fuel}`}
-=======
         timeout={TIMER.TURN_SECONDS}
         fuelText={`${palyerInfo.fuel}`}
->>>>>>> a441f9e (Implementação comp. Timer e Fix do reset de inputs no Setup)
         radarText="Indisponível"
         onTimerTick={handleTimerTick}
         isPlayerTurn={turn == TURN.PLAYER}
