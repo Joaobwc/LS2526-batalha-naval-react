@@ -8,13 +8,13 @@ function Setup({
   onBoardChange,
   orientation,
   onOrientationChange,
+  playerName,
+  onPlayerNameChange,
 }) {
-  const [playerName, setPlayerName] = useState("");
-
   function handleNameChange(event) {
     const nameString = event.currentTarget.value;
     console.log("Nome:", nameString);
-    setPlayerName(nameString);
+    onPlayerNameChange(nameString);
   }
 
   /*
