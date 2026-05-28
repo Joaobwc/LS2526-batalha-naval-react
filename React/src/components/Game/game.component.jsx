@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { FUEL, REQUIRED_FLEET, TURN, TIMER } from "../../constants";
 import {
   createEmptyBoard,
@@ -15,7 +15,7 @@ function Game() {
 
   const [playerName, setPlayerName] = useState("");
 
-  const [palyerInfo, setPlayerInfo] = useState({
+  const [playerInfo, setPlayerInfo] = useState({
     name: "",
     orientation: "",
     fuel: FUEL.MAX,
@@ -194,7 +194,7 @@ function Game() {
     );
 
     // 3. REGRAS DO JOGO: Como estamos no Game, aproveitamos para gastar
-    // combustível e contar a jogada no teu estado 'palyerInfo'
+    // combustível e contar a jogada no teu estado 'playerInfo'
     setPlayerInfo((prev) => ({
       ...prev,
       fuel: prev.fuel - 5, // Desconta 1 de combustível
@@ -224,7 +224,7 @@ function Game() {
     if (seconds === 0) {
       // retirar -5 de combustivel
       /*setPlayerInfo(() => {
-        fuel: palyerInfo.fuel - FUEL.TIMEOUT_PENALTY;
+        fuel: playerInfo.fuel - FUEL.TIMEOUT_PENALTY;
       });
       */
 
@@ -272,7 +272,7 @@ function Game() {
         onDebugChange={handleDebugChange}
         gameStarted={gameStarted}
         timeout={TIMER.TURN_SECONDS}
-        fuelText={`${palyerInfo.fuel}`}
+        fuelText={`${playerInfo.fuel}`}
         radarText="Indisponível"
         onTimerTick={handleTimerTick}
         isPlayerTurn={turn == TURN.PLAYER}
