@@ -23,12 +23,18 @@ function Game() {
     radarCharges: 0,
   });
 
+  const [inteligenciaComputador, setInteligenciaCOmputador] =
+    useState("PROCURA");
+  const [computadorUltimoAcerto, setComputadorUltimoAcerto] = useState(null);
+  const [computadorAlvos, setComputadorAlvos] = useState([]);
+
   const [tamanhoFrota, setTamanhoFrota] = useState(0);
   const [naviosAtingidos, setNaviosAtingidos] = useState(1);
   const [playerShips, setPlayerShips] = useState([]);
   const [computerShips, setComputerShips] = useState([]);
   const [orientation, setOrientation] = useState("H");
   const [tirosNoComputador, setTirosNoComputador] = useState([]);
+  const [tirosNoJogador, setTirosNoJogador] = useState([]);
 
   //Tabuleito pre-definido do computador
   const [selectedBoard, setSelectedBoard] = useState("1");
@@ -192,6 +198,15 @@ function Game() {
     setTirosNoComputador((prev) =>
       prev.includes(index) ? prev : [...prev, index],
     );
+    const novosNaviosAtingidos = acerta ? naviosAtingidos + 1 : naviosAtingidos;
+
+    if (novosNaviosAtingidos === tam) {
+      console.log("Parabéns! Você afundou toda a frota inimiga!", tam);
+      resetJogo();
+    } else {
+      // Se o jogo NÃO acabou, passas IMEDIATAMENTE o turno para o Computador!
+      setTurn(TURN.COMPUTER);
+    }
   };
 
   const handleDebugChange = (e) => {
@@ -230,12 +245,65 @@ function Game() {
     if (turn !== TURN.COMPUTER) return;
 
     const t = setTimeout(() => {
+      let tiroIndex;
+
+      if (inteligenciaComputador == "CAÇA" && computadorAlvos > 0) {
+        const proximosAlvos = [...computadorAlvos];
+        tiroIndex = proximosAlvos.shift();
+      } else {
+        do {
+          tiroIndex = Math.floor(Math.random() * 100); // Gerar posição aleatória
+        } while (tirosNoJogador.includes < tiroIndex);
+      }
+
+      setTirosNoJogador((prev) => [...prev, tiroIndex]);
+      const acertouNoJogador = existeNavio(playerShips, tiroIndex);
+
+      if (acertouNoJogador) {
+        console.log(`Computador disparou em ${tiroIndex} e acertou`);
+        if (inteligenciaComputador === "PROCURA") {
+          setInteligenciaCOmputador("CAÇA");
+
+          const vizinhos = [];
+          const linha = Math.floor(tiroIndex / 10);
+          const coluna = tiroIndex % 10;
+
+          if (linha > 0) vizinhos.push(tiroIndex - 10);
+          if (linha < 9) vizinhos.push(tiroIndex + 10);
+          if (coluna > 0) vizinhos.push(tiroIndex - 1);
+          if (coluna < 9) vizinhos.push(tiroIndex + 1);
+
+          const vizinhosValidos = vizinhos.filter(
+            (v) => !tirosNoJogador.includes(v),
+          );
+          setComputadorAlvos(vizinhosValidos);
+        }
+      } else {
+        console.log(`Computador disparou em ${tiroIndex} e falhou`);
+      }
+
+      if (
+        inteligenciaComputador === "CAÇA" &&
+        (setComputadorAlvos.length === 0 ||
+          (!acertouNoJogador && computadorAlvos.length === 1))
+      ) {
+        setInteligenciaCOmputador("PROCURA");
+        setComputadorAlvos([]);
+      }
+
       setTurn(TURN.PLAYER);
       setTimeLeft(TIMER.TURN_SECONDS);
     }, 500);
 
     return () => clearTimeout(t);
-  }, [gameStarted, turn]);
+  }, [
+    gameStarted,
+    turn,
+    inteligenciaComputador,
+    computadorAlvos,
+    tirosNoJogador,
+    playerShips,
+  ]);
 
   return (
     <div>
@@ -267,10 +335,6 @@ function Game() {
 
       <section className="boards">
         <div className="board-container">
-          {/* TABULEIRO DO JOGADOR: 
-              - Usa o estado 'playerShips'.
-              - debug={true} para o jogador ver sempre onde estão os seus barcos.
-              - Se o jogo NÃO começou, o clique coloca barcos (handlePlaceShip). Se começou, não faz nada. */}
           <Board
             title="Tabuleiro do Jogador"
             ships={playerShips}
@@ -281,15 +345,15 @@ function Game() {
         </div>
 
         <div className="board-container">
-          {/* TABULEIRO DO COMPUTADOR:
-              - Usa o estado 'computerShips'.
-              - debug usa o estado real (só mostra a frota do PC se o botão Debug estiver ativo).
-              - O clique ativa a função de ataque ao computador. */}
           <Board
             title="Tabuleiro do Computador"
             ships={computerShips}
             debug={debug}
-            onSquareClick={gameStarted ? handleAtaqueComputador : () => {}} // Só permite se o gameStarted for true
+            onSquareClick={
+              gameStarted && turn === TURN.PLAYER
+                ? handleAtaqueComputador
+                : () => {}
+            }
             clicks={tirosNoComputador}
           />
         </div>
