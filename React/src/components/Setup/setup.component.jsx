@@ -10,7 +10,10 @@ function Setup({
   onOrientationChange,
   playerName,
   onPlayerNameChange,
+  isFleetReady,
 }) {
+  const jogoPodeInciar = playerName.trim() !== "" && isFleetReady;
+
   function handleNameChange(event) {
     const nameString = event.currentTarget.value;
     console.log("Nome:", nameString);
@@ -47,9 +50,10 @@ function Setup({
           <div className="setup-buttons">
             <button
               type="button"
-              className={`setup-btn ${orientation === "H" ? "is-active" : ""}`}
+              className={`setup-btn ${orientation === "h" ? "is-active" : ""}`}
+              disabled={gameStarted}
               onClick={() => {
-                onOrientationChange("H");
+                onOrientationChange("h");
                 console.log("Clik no botão Horizontal");
               }}
             >
@@ -57,9 +61,10 @@ function Setup({
             </button>
             <button
               type="button"
-              className={`setup-btn ${orientation === "V" ? "is-active" : ""}`}
+              className={`setup-btn ${orientation === "v" ? "is-active" : ""}`}
+              disabled={gameStarted}
               onClick={() => {
-                onOrientationChange("V");
+                onOrientationChange("v");
                 console.log("Clik no botão Vertical");
               }}
             >
@@ -86,7 +91,7 @@ function Setup({
             className={`setup-action-btn ${
               gameStarted ? "is-danger" : "is-primary"
             }`}
-            disabled={playerName.trim() === ""}
+            disabled={!gameStarted && !jogoPodeInciar}
             onClick={() => onStart({ playerName, orientation })}
           >
             {gameStarted ? "Terminar Jogo" : "Iniciar Jogo"}
