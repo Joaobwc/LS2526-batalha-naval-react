@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FUEL, REQUIRED_FLEET, TURN, TIMER } from "../../constants";
+import { FUEL, REQUIRED_FLEET, TURN, TIMER, BOARD_SIZE } from "../../constants";
 import {
   createEmptyBoard,
   createPlayer,
@@ -17,7 +17,7 @@ function Game() {
 
   const [playerInfo, setPlayerInfo] = useState({
     name: "",
-    orientation: "",
+    orientation: "h",
     fuel: FUEL.MAX,
     moveCount: 0,
     radarCharges: 0,
@@ -27,7 +27,7 @@ function Game() {
   const [naviosAtingidos, setNaviosAtingidos] = useState(1);
   const [playerShips, setPlayerShips] = useState([]);
   const [computerShips, setComputerShips] = useState([]);
-  const [orientation, setOrientation] = useState("H");
+  //const [orientation, setOrientation] = useState("h");
   const [tirosNoComputador, setTirosNoComputador] = useState([]);
 
   //Tabuleito pre-definido do computador
@@ -36,6 +36,11 @@ function Game() {
   //de quem é a vez
   const [turn, setTurn] = useState(TURN.PLAYER);
   const [timeLeft, setTimeLeft] = useState(TIMER.TURN_SECONDS);
+
+  //Frota do jogador
+  const PLAYER_FLEET_SIZES = [5, 4, 3, 3, 2, 2];
+
+  const isFleetReady = playerShips.length == PLAYER_FLEET_SIZES.length;
 
   //Funções auxiliares dos handlers
 
@@ -47,7 +52,7 @@ function Game() {
     setPlayerName("");
     setPlayerInfo({
       name: "",
-      orientation: "H",
+      orientation: "h",
       fuel: FUEL.MAX,
       moveCount: 0,
       radarCharges: 0,
@@ -59,32 +64,74 @@ function Game() {
     setTurn(TURN.PLAYER);
     setTimeLeft(TIMER.TURN_SECONDS);
   };
+
   //handlers(calbacks)
 
+  const getLinha = (index) => Math.floor(index / BOARD_SIZE);
+  const getColuna = (index) => index % BOARD_SIZE;
+
+  const canPlaceShipAt = (startIndex, size, orientation, ships) => {
+    // 1) Validar limites do tabuleiro
+    if (orientation === "h") {
+      // Ex.: startIndex=9, size=5 => startCol=9, endCol=13 => inválido
+      const startCol = getColuna(startIndex);
+      const endCol = startCol + (size - 1);
+      if (endCol >= BOARD_SIZE) return false;
+
+      // Garantia extra: todos os índices têm de ficar na mesma linha
+      const startRow = getLinha(startIndex);
+      for (let i = 0; i < size; i++) {
+        const idx = startIndex + i;
+        if (getLinha(idx) !== startRow) return false;
+      }
+    } else {
+      // Vertical: não pode passar do último índice (99 num board 10x10)
+      const endIndex = startIndex + (size - 1) * BOARD_SIZE;
+      if (endIndex >= BOARD_SIZE * BOARD_SIZE) return false;
+    }
+
+    // 2) Validar sobreposição
+    for (let i = 0; i < size; i++) {
+      const idx =
+        orientation === "h" ? startIndex + i : startIndex + i * BOARD_SIZE;
+
+      if (existeNavio(ships, idx)) return false;
+    }
+
+    return true;
+  };
+
   const handlePlaceShip = (index) => {
-    if (playerShips.length === REQUIRED_FLEET.length) {
-      // Verificar se já atingiu o limite de navios
-      console.log("Limite de navios atingido! Já não podes colocar mais.");
+    // Verificar se colocaste a frota toda
+    if (playerShips.length >= PLAYER_FLEET_SIZES.length) {
+      console.log("Já colocaste toda a frota!");
       return;
     }
-    const tamanhosPredefinidos = [4, 3, 2, 1]; // Definir o tamanho dos barcos
 
-    // Vamos buscar o tamanho correspondente à quantidade de barcos que já temos
-    const tamanhoDoBarco = tamanhosPredefinidos[playerShips.length] || 2; // Caso falhe, assume tamanho 2
+    // Tamanho do navio atual (depende de quantos já colocaste)
+    const size = PLAYER_FLEET_SIZES[playerShips.length];
 
-    // Passamos o ID, o tamanho calculado, o index (clique) e a orientação em minúsculas
+    // Orientação (garantir que é "h" ou "v")
+    const orientation = playerInfo.orientation || "h";
+
+    // 4) Validar posição
+    const ok = canPlaceShipAt(index, size, orientation, playerShips);
+    if (!ok) {
+      console.log("Posição inválida (fora do tabuleiro ou sobreposição).");
+      return;
+    }
+
+    // 5) Criar navio válido e guardar
     const novoNavio = criarNavio(
-      playerShips.length + 1, // ID (1, 2, 3...)
-      tamanhoDoBarco, // Tamanho do barco atual
+      playerShips.length + 1, //ID(1,2...)
+      size, //tamanho do barco atual
       index, // Posição onde o jogador clicou
-      playerInfo.orientation.toLowerCase(), // Orientação convertida para "h" ou "v"
+      orientation, //orientação
     );
 
-    // TAREFA D: Atualizar o estado do React adicionando o novo navio ao array
     setPlayerShips((prevShips) => [...prevShips, novoNavio]);
     console.log("Navio colocado com sucesso:", novoNavio);
   };
-
   //trocar o valor do Board ao mudar
   const handleBoardChange = (e) => {
     const value = e.currentTarget.value;
@@ -121,6 +168,7 @@ function Game() {
       ];
     } else {
       // Frota aleatória, falta fazer
+
       // Tabuleiros 3, 4 ou padrão caso não coincida
       frotaComputador = [
         criarNavio(1, 3, 20, "h"),
@@ -251,6 +299,7 @@ function Game() {
           }}
           playerName={playerName}
           onPlayerNameChange={setPlayerName}
+          isFleetReady={isFleetReady}
         />
       </div>
 
