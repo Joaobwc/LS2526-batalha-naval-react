@@ -6,7 +6,7 @@ import {
   criarNavio,
   existeNavio,
 } from "../../helpers";
-import { Setup, ControlPanel, Board } from "../../components";
+import { Setup, ControlPanel, Board, GameOver } from "../../components";
 
 function Game() {
   //Variáveis de estado
@@ -22,6 +22,8 @@ function Game() {
     moveCount: 0,
     radarCharges: 0,
   });
+
+  const [gameOverInfo, setGameOverInfo] = useState(null);
 
   const [inteligenciaComputador, setInteligenciaCOmputador] =
     useState("PROCURA");
@@ -45,6 +47,7 @@ function Game() {
 
   //Frota do jogador
   const PLAYER_FLEET_SIZES = [5, 4, 3, 3, 2, 2];
+  const COMPUTER_FLEET_SIZES = [5, 4, 3, 3, 2, 2];
 
   const isFleetReady = playerShips.length == PLAYER_FLEET_SIZES.length;
 
@@ -57,6 +60,7 @@ function Game() {
   //reset do jogo
   const resetJogo = () => {
     setGameStarted(false);
+    setGameOverInfo(null);
     setDebug(false);
     setSelectedBoard("1");
     setPlayerName("");
@@ -200,27 +204,33 @@ function Game() {
 
     if (selectedBoard === "1") {
       frotaComputador = [
-        criarNavio(1, 4, 1, "h"),
-        criarNavio(2, 3, 34, "v"),
-        criarNavio(3, 2, 67, "h"),
-        criarNavio(4, 1, 89, "h"),
+        criarNavio(1, 5, 0, "h"), // 0-4
+        criarNavio(2, 4, 20, "h"), // 20-23
+        criarNavio(3, 3, 40, "h"), // 40-42
+        criarNavio(4, 3, 66, "v"), // 66,76,86
+        criarNavio(5, 2, 9, "v"), // 9,19
+        criarNavio(6, 2, 95, "h"), // 95,96
       ];
     } else if (selectedBoard === "2") {
       frotaComputador = [
-        criarNavio(1, 4, 5, "v"),
-        criarNavio(2, 3, 41, "h"),
-        criarNavio(3, 2, 73, "v"),
-        criarNavio(4, 1, 19, "h"),
+        criarNavio(1, 5, 10, "h"), // 10-14
+        criarNavio(2, 4, 3, "v"), // 3,13,23,33
+        criarNavio(3, 3, 70, "h"), // 70-72
+        criarNavio(4, 3, 47, "v"), // 47,57,67
+        criarNavio(5, 2, 88, "h"), // 88,89
+        criarNavio(6, 2, 52, "h"), // 52,53
       ];
     } else {
       // Frota aleatória, falta fazer
 
       // Tabuleiros 3, 4 ou padrão caso não coincida
       frotaComputador = [
-        criarNavio(1, 3, 20, "h"),
-        criarNavio(2, 2, 55, "v"),
-        criarNavio(3, 4, 0, "h"),
-        criarNavio(4, 1, 99, "h"),
+        criarNavio(1, 5, 0, "h"),
+        criarNavio(2, 4, 20, "h"),
+        criarNavio(3, 3, 40, "h"),
+        criarNavio(4, 3, 66, "v"),
+        criarNavio(5, 2, 9, "v"),
+        criarNavio(6, 2, 95, "h"),
       ];
     }
 
@@ -398,6 +408,28 @@ function Game() {
     playerShips,
   ]);
 
+  //useeffect que vai verificar a frota do jogador e computador
+  useEffect(() => {
+    if (!gameStarted) return;
+    if (gameOverInfo) return;
+
+    //Sempre que há um tiro  (os arrays mudam), é verificado se alguem perdeu
+    if (isFleetDestroyed(computerShips)) {
+      endGame({ winner: "PLAYER", reason: "FLEET" });
+      return;
+    }
+
+    if (isFleetDestroyed(playerShips)) {
+      endGame({ winner: "COMPUTER", reason: "FLEET" });
+    }
+  }, [gameStarted, gameOverInfo, computerShips, playerShips]);
+
+  //Renderização Condicional
+  //verificar se o GameOverIndo existe, se existir é renderizado, caso contrário renderia o jogo pronto a jogar
+  //if (gameOverInfo) {
+  //  return <GameOver info={gameOverInfo} onRestart={resetJogo} />;
+  //}
+
   return (
     <div>
       <div className="setup-wrapper">
@@ -455,6 +487,7 @@ function Game() {
           />
         </div>
       </section>
+      {gameOverInfo && <GameOver info={gameOverInfo} onRestart={resetJogo} />}
     </div>
   );
 }
