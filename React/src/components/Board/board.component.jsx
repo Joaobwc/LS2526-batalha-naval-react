@@ -10,6 +10,7 @@ function Board({
   debug = false,
   onSquareClick,
   clicks = [],
+  radarCells = [],
 }) {
   const squares = [];
   const [celulaClicada, setCelulaClicada] = useState([]);
@@ -34,6 +35,11 @@ function Board({
 
     //else if (isShip) extraClass = "cell--ship";
     //if (i === 77) extraClass = "cell--sunk";
+    const isRadarCell = radarCells.includes(i);
+
+    if (isRadarCell) {
+      extraClass = "cell--radar";
+    }
 
     squares.push(
       <Square

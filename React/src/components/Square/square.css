@@ -67,3 +67,8 @@
   background-color: #22c55e !important; /* Um verde brilhante para saberes onde os navios estão */
   opacity: 0.8;
 }
+
+.cell--radar {
+  background-color: #facc15 !important;
+  border: 2px solid #f59e0b;
+}
