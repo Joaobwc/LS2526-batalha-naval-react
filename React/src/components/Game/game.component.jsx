@@ -28,8 +28,8 @@ function Game() {
   const [computadorUltimoAcerto, setComputadorUltimoAcerto] = useState(null);
   const [computadorAlvos, setComputadorAlvos] = useState([]);
 
-  const [tamanhoFrota, setTamanhoFrota] = useState(0);
-  const [naviosAtingidos, setNaviosAtingidos] = useState(1);
+  //const [tamanhoFrota, setTamanhoFrota] = useState(0);
+  //const [naviosAtingidos, setNaviosAtingidos] = useState(1);
   const [playerShips, setPlayerShips] = useState([]);
   const [computerShips, setComputerShips] = useState([]);
   //const [orientation, setOrientation] = useState("h");
@@ -65,7 +65,7 @@ function Game() {
     });
     setPlayerShips([]);
     setComputerShips([]);
-    setNaviosAtingidos(0);
+    //setNaviosAtingidos(0);
     setTirosNoComputador([]);
     setTirosNoJogador([]);
     setTurn(TURN.PLAYER);
@@ -201,10 +201,10 @@ function Game() {
   };
 
   // Contar o tamanho da frota do inimigo
-  let tam = 0;
+  /*let tam = 0;
   for (let i = 0; i < computerShips.length; i++) {
     tam = tam + computerShips[i].size;
-  }
+  }*/
 
   //Aplica um tiro numa frota e devolve uma frota Nova sem mudar o array antigo
   const applyShotToFleet = (ships, index) => {
@@ -245,7 +245,10 @@ function Game() {
     return { nextShips, hit, sunkShipId };
   };
 
-  const handleAtaqueComputador = (index) => {
+  const spendFuel = (fuel, cost) => Math.max(0, fuel - cost); //não deixa ficar negativo
+  const rewardFuel = (fuel, reward) => Math.min(FUEL.MAX, fuel + reward); //não deixa passar dos 100
+
+  const handleAtaqueAoComputador = (index) => {
     // Só permite disparar se o jogo já tiver começado!
     if (!gameStarted) return;
     if (turn !== TURN.PLAYER) return;
@@ -263,55 +266,28 @@ function Game() {
     // guardar o click para o Board pintar miss/hit
     setTirosNoComputador((prev) => [...prev, index]);
 
-    // (para já) logs úteis
+    // logs de debug
     console.log("Jogador tiro debug:", { index, hit, sunkShipId });
-    console.log("PC tiro debug:", { tiroIndex, pcHit, pcSunkId });
 
     // Chama a função 'existeNavio' para ver se o tiro acertou
-    const acerta = existeNavio(computerShips, index);
-    if (existeNavio(computerShips, index)) {
-      setNaviosAtingidos((prev) => prev + 1); // Contar quantos navios acertou
+    setPlayerInfo((prev) => {
+      // tiro custa sempre -5
+      let nextFuel = spendFuel(prev.fuel, FUEL.SHOT_COST);
 
-      if (playerInfo.fuel < 100) {
-        if (playerInfo.fuel + 10 > FUEL.MAX) {
-          //console.log("comb", diferenca_combustivel);
-          setPlayerInfo(() => ({
-            fuel: FUEL.MAX,
-          }));
-        } else if (playerInfo.fuel === FUEL.MAX) {
-          setPlayerInfo(() => ({
-            fuel: FUEL.MAX,
-          }));
-        } else if (playerInfo) {
-          setPlayerInfo(() => ({
-            fuel: playerInfo.fuel + FUEL.HIT_REWARD,
-          }));
-        }
-      }
+      // se acertou, ganha +10 (sem ultrapassar 100)
+      if (hit) nextFuel = rewardFuel(nextFuel, FUEL.HIT_REWARD);
 
-      console.log("Navios atingidos: ", naviosAtingidos);
-    } else {
-      setPlayerInfo((prev) => ({ ...prev, fuel: prev.fuel - FUEL.SHOT_COST }));
-    }
+      return {
+        ...prev,
+        fuel: nextFuel,
+        moveCount: prev.moveCount + 1,
+      };
+    });
 
-    if (naviosAtingidos === tam) {
-      console.log("Parabéns! Você afundou toda a frota inimiga!", tam);
-      resetJogo();
-    }
+    console.log("Jogador disparou:", { index, hit, sunkShipId });
 
-    // 2. GUARDAR O CLIQUE: Faz exatamente o mesmo que a tua função fazia, mas atualiza o estado global de tiros do Game
-    setTirosNoComputador((prev) =>
-      prev.includes(index) ? prev : [...prev, index],
-    );
-    const novosNaviosAtingidos = acerta ? naviosAtingidos + 1 : naviosAtingidos;
-
-    if (novosNaviosAtingidos === tam) {
-      console.log("Parabéns! Você afundou toda a frota inimiga!", tam);
-      resetJogo();
-    } else {
-      // Se o jogo NÃO acabou, passas IMEDIATAMENTE o turno para o Computador!
-      setTurn(TURN.COMPUTER);
-    }
+    // Passar o turno para o computador
+    setTurn(TURN.COMPUTER);
   };
 
   const handleDebugChange = (e) => {
@@ -329,12 +305,6 @@ function Game() {
     setTimeLeft(seconds);
 
     if (seconds === 0) {
-      // retirar -5 de combustivel
-      /*setPlayerInfo(() => {
-        fuel: playerInfo.fuel - FUEL.TIMEOUT_PENALTY;
-      });
-      */
-
       setPlayerInfo((prev) => ({
         ...prev,
         fuel: Math.max(0, prev.fuel - FUEL.TIMEOUT_PENALTY),
@@ -343,6 +313,17 @@ function Game() {
       setTimeLeft(TIMER.TURN_SECONDS);
     }
   };
+
+  //Se o fuel chegar a 0, colocar logo que perdi
+  useEffect(() => {
+    //executa sempre que existir uma alteração no estado do gamestarted e no combustivel
+    if (!gameStarted) return;
+
+    if (playerInfo.fuel === 0) {
+      console.log("Game Over: Jogador ficou sem combustível");
+      resetJogo();
+    }
+  }, [gameStarted, playerInfo.fuel]);
 
   //Mudar a vez do PC para PLayer
   useEffect(() => {
@@ -474,7 +455,7 @@ function Game() {
             debug={debug}
             onSquareClick={
               gameStarted && turn === TURN.PLAYER
-                ? handleAtaqueComputador
+                ? handleAtaqueAoComputador
                 : () => {}
             }
             clicks={tirosNoComputador}
