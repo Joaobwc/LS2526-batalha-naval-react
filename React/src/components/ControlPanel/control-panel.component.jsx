@@ -12,6 +12,8 @@ function ControlPanel({
   gameStarted,
   onTimerTick,
   isPlayerTurn,
+  onRadarClick,
+  radarDisponivel,
 }) {
   const handleTimer = (seconds) => {
     if (onTimerTick) onTimerTick(seconds);
@@ -43,7 +45,12 @@ function ControlPanel({
         </dl>
 
         <div className="right">
-          <button type="button" id="btRadar">
+          <button
+            type="button"
+            id="btRadar"
+            disabled={!radarDisponivel}
+            onClick={onRadarClick}
+          >
             Ativar Radar
           </button>
         </div>
