@@ -14,30 +14,26 @@ function Board({
   const squares = [];
   const [celulaClicada, setCelulaClicada] = useState([]);
 
-  /*
-  const handleCelulaClick = (index) => {
-    const acerta = existe(ships, index);
-    setCelulaClicada((prev) =>
-      prev.includes(index) ? prev : [...prev, index],
-    );
-    console.log(`Célula ${index} clicada: ${acerta ? "HIT" : "MISS"}`);
-    return index;
+  const isSunkCell = (index) => {
+    const ship = ships.find((s) => s.position.includes(index));
+    return ship ? ship.sunk : false;
   };
-  */
 
   // O BOARD_SIZE tem de ser obrigatoriamente 10 no teu ficheiro constants.js!
   for (let i = 0; i < BOARD_SIZE * BOARD_SIZE; i += 1) {
     let extraClass = "cell--unknown";
+
     const isShip = existeNavio(ships, i);
     const isClicked = clicks.includes(i);
-    const isHit = isClicked && existeNavio(ships, i);
+    const isSunk = isSunkCell(i);
 
-    if (isClicked && isShip) extraClass = "cell--hit";
+    if (isSunk) extraClass = "cell--sunk";
+    else if (isClicked && isShip) extraClass = "cell--hit";
     else if (isClicked && !isShip) extraClass = "cell--miss";
     else if (debug && isShip) extraClass = "cell--ship-debug";
-    else if (isShip) extraClass = "cell--ship";
 
-    if (i === 77) extraClass = "cell--sunk";
+    //else if (isShip) extraClass = "cell--ship";
+    //if (i === 77) extraClass = "cell--sunk";
 
     squares.push(
       <Square

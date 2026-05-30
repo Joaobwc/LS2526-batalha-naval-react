@@ -67,6 +67,7 @@ function Game() {
     setComputerShips([]);
     setNaviosAtingidos(0);
     setTirosNoComputador([]);
+    setTirosNoJogador([]);
     setTurn(TURN.PLAYER);
     setTimeLeft(TIMER.TURN_SECONDS);
   };
@@ -205,10 +206,66 @@ function Game() {
     tam = tam + computerShips[i].size;
   }
 
+  //Aplica um tiro numa frota e devolve uma frota Nova sem mudar o array antigo
+  const applyShotToFleet = (ships, index) => {
+    let hit = false;
+    let sunkShipId = null;
+
+    const nextShips = ships.map((ship) => {
+      //Se o tiro não foi nesse navio, devolvemos o navio igual
+      if (!ship.position.includes(index)) return ship;
+
+      console.log("applyShotToFleet encontrou navio:", {
+        shipId: ship.id,
+        index,
+        size: ship.size,
+        hitsAntes: ship.hits,
+        position: ship.position,
+      });
+
+      hit = true;
+
+      //se já tinha sido atingida a posiçã0, não alteramos nada
+      if (ship.hits.includes(index)) return ship;
+
+      const nextHits = [...ship.hits, index];
+      const isSunkNow = nextHits.length === ship.size;
+
+      if (isSunkNow) sunkShipId = ship.id;
+
+      return {
+        ...ship,
+        hits: nextHits,
+        sunk: isSunkNow,
+      };
+    });
+
+    console.log("applyShotToFleet resultado:", { index, hit, sunkShipId });
+
+    return { nextShips, hit, sunkShipId };
+  };
+
   const handleAtaqueComputador = (index) => {
     // Só permite disparar se o jogo já tiver começado!
     if (!gameStarted) return;
-    //console.log(frotaComputador.length);
+    if (turn !== TURN.PLAYER) return;
+
+    //Impedir a repetição de tiros
+    if (tirosNoComputador.includes(index)) return;
+
+    //Aplicar tiro à frota do computador (marca hits/sunk)
+    const { nextShips, hit, sunkShipId } = applyShotToFleet(
+      computerShips,
+      index,
+    );
+    setComputerShips(nextShips);
+
+    // guardar o click para o Board pintar miss/hit
+    setTirosNoComputador((prev) => [...prev, index]);
+
+    // (para já) logs úteis
+    console.log("Jogador tiro debug:", { index, hit, sunkShipId });
+    console.log("PC tiro debug:", { tiroIndex, pcHit, pcSunkId });
 
     // Chama a função 'existeNavio' para ver se o tiro acertou
     const acerta = existeNavio(computerShips, index);
@@ -295,50 +352,67 @@ function Game() {
     const t = setTimeout(() => {
       let tiroIndex;
 
-      if (inteligenciaComputador == "CAÇA" && computadorAlvos > 0) {
+      // 1) ESCOLHER o tiro primeiro (PROCURA ou CAÇA)
+      if (inteligenciaComputador === "CAÇA" && computadorAlvos.length > 0) {
         const proximosAlvos = [...computadorAlvos];
         tiroIndex = proximosAlvos.shift();
+        setComputadorAlvos(proximosAlvos);
       } else {
         do {
-          tiroIndex = Math.floor(Math.random() * 100); // Gerar posição aleatória
-        } while (tirosNoJogador.includes < tiroIndex);
+          tiroIndex = Math.floor(Math.random() * (BOARD_SIZE * BOARD_SIZE));
+        } while (tirosNoJogador.includes(tiroIndex));
       }
 
-      setTirosNoJogador((prev) => [...prev, tiroIndex]);
-      const acertouNoJogador = existeNavio(playerShips, tiroIndex);
+      // 2) Guardar tiro (para pintar o board do jogador)
+      setTirosNoJogador((prev) =>
+        prev.includes(tiroIndex) ? prev : [...prev, tiroIndex],
+      );
 
-      if (acertouNoJogador) {
-        console.log(`Computador disparou em ${tiroIndex} e acertou`);
+      // 3) Aplicar tiro à frota do jogador (atualiza hits/sunk)
+      const {
+        nextShips: nextPlayerShips,
+        hit: pcHit,
+        sunkShipId: pcSunkId,
+      } = applyShotToFleet(playerShips, tiroIndex);
+
+      setPlayerShips(nextPlayerShips);
+
+      console.log(
+        "PC disparou em",
+        tiroIndex,
+        pcHit ? "HIT" : "MISS",
+        pcSunkId ? `(SUNK ship ${pcSunkId})` : "",
+      );
+
+      // 4) Atualizar modo CAÇA: se acertou e estava em PROCURA, criar alvos vizinhos
+      if (pcHit) {
         if (inteligenciaComputador === "PROCURA") {
           setInteligenciaCOmputador("CAÇA");
 
           const vizinhos = [];
-          const linha = Math.floor(tiroIndex / 10);
-          const coluna = tiroIndex % 10;
+          const linha = Math.floor(tiroIndex / BOARD_SIZE);
+          const coluna = tiroIndex % BOARD_SIZE;
 
-          if (linha > 0) vizinhos.push(tiroIndex - 10);
-          if (linha < 9) vizinhos.push(tiroIndex + 10);
+          if (linha > 0) vizinhos.push(tiroIndex - BOARD_SIZE);
+          if (linha < BOARD_SIZE - 1) vizinhos.push(tiroIndex + BOARD_SIZE);
           if (coluna > 0) vizinhos.push(tiroIndex - 1);
-          if (coluna < 9) vizinhos.push(tiroIndex + 1);
+          if (coluna < BOARD_SIZE - 1) vizinhos.push(tiroIndex + 1);
 
           const vizinhosValidos = vizinhos.filter(
-            (v) => !tirosNoJogador.includes(v),
+            (v) => !tirosNoJogador.includes(v) && v !== tiroIndex,
           );
+
           setComputadorAlvos(vizinhosValidos);
         }
-      } else {
-        console.log(`Computador disparou em ${tiroIndex} e falhou`);
       }
 
-      if (
-        inteligenciaComputador === "CAÇA" &&
-        (setComputadorAlvos.length === 0 ||
-          (!acertouNoJogador && computadorAlvos.length === 1))
-      ) {
+      // 5) Se afundou, voltar logo a PROCURA (mínimo funcional)
+      if (pcSunkId) {
         setInteligenciaCOmputador("PROCURA");
         setComputadorAlvos([]);
       }
 
+      // 6) Passar turno de volta ao jogador e reset ao timer
       setTurn(TURN.PLAYER);
       setTimeLeft(TIMER.TURN_SECONDS);
     }, 500);
@@ -389,7 +463,7 @@ function Game() {
             ships={playerShips}
             debug={true}
             onSquareClick={!gameStarted ? handlePlaceShip : () => {}} // Só permite se o gameStarted for false
-            clicks={[]}
+            clicks={gameStarted ? tirosNoJogador : []}
           />
         </div>
 
