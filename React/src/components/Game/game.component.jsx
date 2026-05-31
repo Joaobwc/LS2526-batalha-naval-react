@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { FUEL, REQUIRED_FLEET, TURN, TIMER, BOARD_SIZE } from "../../constants";
 import {
-  createEmptyBoard,
-  createPlayer,
+  //createEmptyBoard,
+  //createPlayer,
   criarNavio,
   existeNavio,
 } from "../../helpers";
@@ -12,8 +12,6 @@ function Game() {
   //Variáveis de estado
   const [debug, setDebug] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
-
-  const [playerName, setPlayerName] = useState("");
 
   const [playerInfo, setPlayerInfo] = useState({
     name: "",
@@ -27,14 +25,9 @@ function Game() {
 
   const [inteligenciaComputador, setInteligenciaCOmputador] =
     useState("PROCURA");
-  const [computadorUltimoAcerto, setComputadorUltimoAcerto] = useState(null);
   const [computadorAlvos, setComputadorAlvos] = useState([]);
-
-  //const [tamanhoFrota, setTamanhoFrota] = useState(0);
-  //const [naviosAtingidos, setNaviosAtingidos] = useState(1);
   const [playerShips, setPlayerShips] = useState([]);
   const [computerShips, setComputerShips] = useState([]);
-  //const [orientation, setOrientation] = useState("h");
   const [tirosNoComputador, setTirosNoComputador] = useState([]);
   const [tirosNoJogador, setTirosNoJogador] = useState([]);
 
@@ -64,11 +57,10 @@ function Game() {
     setDebug(false);
 
     setInteligenciaCOmputador("PROCURA");
-    setComputadorUltimoAcerto(null);
+
     setComputadorAlvos([]);
 
     setSelectedBoard("1");
-    setPlayerName("");
     setPlayerInfo({
       name: "",
       orientation: "h",
@@ -78,7 +70,6 @@ function Game() {
     });
     setPlayerShips([]);
     setComputerShips([]);
-    //setNaviosAtingidos(0);
     setTirosNoComputador([]);
     setTirosNoJogador([]);
     setTurn(TURN.PLAYER);
@@ -109,7 +100,7 @@ function Game() {
   const getColuna = (index) => index % BOARD_SIZE;
 
   const canPlaceShipAt = (startIndex, size, orientation, ships) => {
-    // 1) Validar limites do tabuleiro
+    // Validar limites do tabuleiro
     if (orientation === "h") {
       // Ex.: startIndex=9, size=5 => startCol=9, endCol=13 => inválido
       const startCol = getColuna(startIndex);
@@ -128,7 +119,7 @@ function Game() {
       if (endIndex >= BOARD_SIZE * BOARD_SIZE) return false;
     }
 
-    // 2) Validar sobreposição
+    // Validar sobreposição
     for (let i = 0; i < size; i++) {
       const idx =
         orientation === "h" ? startIndex + i : startIndex + i * BOARD_SIZE;
@@ -321,24 +312,19 @@ function Game() {
     setComputerShips(frotaComputador);
 
     //iniciar jogo
-    setPlayerInfo({
+    setPlayerInfo((prev) => ({
+      ...prev,
       name: data.playerName,
       orientation: data.orientation,
       fuel: FUEL.MAX,
       moveCount: 0,
       radarCharges: 0,
-    });
+    }));
+
     setGameStarted(true);
 
     console.log("handleStartGame Chamando com: ", data);
   };
-
-  // Contar o tamanho da frota do inimigo
-  /*let tam = 0;
-  for (let i = 0; i < computerShips.length; i++) {
-    tam = tam + computerShips[i].size;
-  }
-  */
 
   const applyShotToFleet = (ships, index) => {
     let hit = false;
@@ -380,20 +366,20 @@ function Game() {
 
     const tempoGasto = TIMER.TURN_SECONDS - timeLeft;
 
-    // 1) Aplicar tiro à frota do computador (marca hits/sunk)
+    // Aplicar tiro à frota do computador (marca hits/sunk)
     const { nextShips, hit, sunkShipId } = applyShotToFleet(
       computerShips,
       index,
     );
     setComputerShips(nextShips);
 
-    // 2) Guardar tiro para pintar (miss/hit/sunk)
+    // Guardar tiro para pintar (miss/hit/sunk)
     setTirosNoComputador((prev) => [...prev, index]);
 
-    // 3) Radar: só fica disponível se HIT e < 3s
+    // Radar: só fica disponível se HIT e < 3s
     if (hit && tempoGasto < 3) setRadarDisponivel(true);
 
-    // 4) Combustível + moveCount (sempre com prev => ...)
+    // Combustível + moveCount (sempre com prev => ...)
     setPlayerInfo((prev) => {
       let nextFuel = Math.max(0, prev.fuel - FUEL.SHOT_COST);
       if (hit) nextFuel = Math.min(FUEL.MAX, nextFuel + FUEL.HIT_REWARD);
@@ -407,7 +393,7 @@ function Game() {
 
     console.log("Jogador tiro:", { index, hit, sunkShipId });
 
-    // 5) passa turno
+    // passa turno
     setTurn(TURN.COMPUTER);
     setTimeLeft(TIMER.TURN_SECONDS);
   };
@@ -427,12 +413,6 @@ function Game() {
     setTimeLeft(seconds);
 
     if (seconds === 0) {
-      // retirar -5 de combustivel
-      /*setPlayerInfo(() => {
-        fuel: playerInfo.fuel - FUEL.TIMEOUT_PENALTY;
-      });
-      */
-
       setPlayerInfo((prev) => ({
         ...prev,
         fuel: Math.max(0, prev.fuel - FUEL.TIMEOUT_PENALTY),
@@ -450,7 +430,7 @@ function Game() {
     const t = setTimeout(() => {
       let tiroIndex;
 
-      // 1) escolher tiro (CAÇA se houver alvos, senão aleatório)
+      // escolher tiro (CAÇA se houver alvos, senão aleatório)
       if (inteligenciaComputador === "CAÇA" && computadorAlvos.length > 0) {
         const proximosAlvos = [...computadorAlvos];
         tiroIndex = proximosAlvos.shift();
@@ -461,12 +441,12 @@ function Game() {
         } while (tirosNoJogador.includes(tiroIndex));
       }
 
-      // 2) guardar tiro (para pintar no board do jogador)
+      // guardar tiro (para pintar no board do jogador)
       setTirosNoJogador((prev) =>
         prev.includes(tiroIndex) ? prev : [...prev, tiroIndex],
       );
 
-      // 3) aplicar tiro à frota do jogador (marca hits/sunk)
+      // aplicar tiro à frota do jogador (marca hits/sunk)
       const {
         nextShips: nextPlayerShips,
         hit: pcHit,
@@ -477,7 +457,7 @@ function Game() {
 
       console.log("PC tiro:", { tiroIndex, pcHit, pcSunkId });
 
-      // 4) IA: se acertou e estava em PROCURA, passa a CAÇA e cria alvos vizinhos
+      // IA: se acertou e estava em PROCURA, passa a CAÇA e cria alvos vizinhos
       if (pcHit && inteligenciaComputador === "PROCURA") {
         setInteligenciaCOmputador("CAÇA");
 
@@ -497,13 +477,13 @@ function Game() {
         setComputadorAlvos(vizinhosValidos);
       }
 
-      // 5) se afundou, volta a PROCURA e limpa alvos (mínimo funcional)
+      // se afundou, volta a PROCURA e limpa alvos (mínimo funcional)
       if (pcSunkId !== null) {
         setInteligenciaCOmputador("PROCURA");
         setComputadorAlvos([]);
       }
 
-      // 6) devolver turno ao jogador
+      // devolver turno ao jogador
       setTurn(TURN.PLAYER);
       setTimeLeft(TIMER.TURN_SECONDS);
     }, 500);
@@ -556,8 +536,10 @@ function Game() {
           onOrientationChange={(newOrientation) => {
             setPlayerInfo((prev) => ({ ...prev, orientation: newOrientation }));
           }}
-          playerName={playerName}
-          onPlayerNameChange={setPlayerName}
+          playerName={playerInfo.name}
+          onPlayerNameChange={(name) =>
+            setPlayerInfo((prev) => ({ ...prev, name }))
+          }
           isFleetReady={isFleetReady}
         />
       </div>
@@ -584,7 +566,6 @@ function Game() {
             debug={true}
             onSquareClick={!gameStarted ? handlePlaceShip : () => {}} // Só permite se o gameStarted for false
             clicks={tirosNoJogador}
-            active={turn === TURN.PLAYER}
           />
         </div>
 
@@ -600,7 +581,6 @@ function Game() {
             }
             clicks={tirosNoComputador}
             radarCells={radarCells}
-            active={turn === TURN.COMPUTER}
           />
         </div>
       </section>
