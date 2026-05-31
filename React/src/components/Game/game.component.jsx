@@ -62,6 +62,11 @@ function Game() {
     setGameStarted(false);
     setGameOverInfo(null);
     setDebug(false);
+
+    setInteligenciaCOmputador("PROCURA");
+    setComputadorUltimoAcerto(null);
+    setComputadorAlvos([]);
+
     setSelectedBoard("1");
     setPlayerName("");
     setPlayerInfo({
@@ -148,6 +153,7 @@ function Game() {
     console.log("Navio colocado com sucesso:", novoNavio);
   };
 
+<<<<<<< HEAD
   const handleRadar = () => {
     if (!radarDisponivel) return;
 
@@ -182,6 +188,47 @@ function Game() {
 
   const handleRadarClick = handleRadar;
 
+=======
+  const criarNavioRandom = (id, size, placedShips) => {
+    // limitar tentativas para 500
+    const maxTries = 500;
+
+    for (let tries = 0; tries < maxTries; tries += 1) {
+      const orientation = Math.random() < 0.5 ? "h" : "v"; //escolhe orientação
+      const startIndex = Math.floor(Math.random() * (BOARD_SIZE * BOARD_SIZE)); //ecolhe aleatóriamente a posição de inicio
+
+      //verifica se a posição é valida
+      const ok = canPlaceShipAt(startIndex, size, orientation, placedShips);
+      if (!ok) continue;
+
+      return criarNavio(id, size, startIndex, orientation);
+    }
+
+    // Em caso de erro returna NULL
+    return null;
+  };
+
+  //Criar o Tab da frota aleatória
+  const criarFrotaRandom = () => {
+    const ships = [];
+
+    //criar os os navios tendo em conta os tamanhos
+    for (let i = 0; i < COMPUTER_FLEET_SIZES.length; i += 1) {
+      const size = COMPUTER_FLEET_SIZES[i];
+      const ship = criarNavioRandom(i + 1, size, ships);
+
+      if (!ship) {
+        // Se falhou a gerar um navio, devolve o que tem ou array vazio
+        console.log("Falha ao gerar navio aleatório:", { id: i + 1, size });
+        return [];
+      }
+      //colocar no array o navio
+      ships.push(ship);
+    }
+
+    return ships;
+  };
+>>>>>>> 1658855 (Adição da frota aleatoria e fix resetJogo())
   //trocar o valor do Board ao mudar
   const handleBoardChange = (e) => {
     const value = e.currentTarget.value;
@@ -204,34 +251,45 @@ function Game() {
 
     if (selectedBoard === "1") {
       frotaComputador = [
-        criarNavio(1, 5, 0, "h"), // 0-4
-        criarNavio(2, 4, 20, "h"), // 20-23
-        criarNavio(3, 3, 40, "h"), // 40-42
-        criarNavio(4, 3, 66, "v"), // 66,76,86
-        criarNavio(5, 2, 9, "v"), // 9,19
-        criarNavio(6, 2, 95, "h"), // 95,96
+        criarNavio(1, 5, 0, "h"), // 0, 1, 2, 3, 4
+        criarNavio(2, 4, 20, "h"), // 20, 21, 22, 23
+        criarNavio(3, 3, 40, "h"), // 40, 41, 42
+        criarNavio(4, 3, 66, "v"), // 66, 76, 86
+        criarNavio(5, 2, 9, "v"), // 9, 19
+        criarNavio(6, 2, 95, "h"), // 95, 96
       ];
     } else if (selectedBoard === "2") {
       frotaComputador = [
-        criarNavio(1, 5, 10, "h"), // 10-14
-        criarNavio(2, 4, 3, "v"), // 3,13,23,33
-        criarNavio(3, 3, 70, "h"), // 70-72
-        criarNavio(4, 3, 47, "v"), // 47,57,67
-        criarNavio(5, 2, 88, "h"), // 88,89
-        criarNavio(6, 2, 52, "h"), // 52,53
+        criarNavio(1, 5, 10, "h"), // 10, 11, 12, 13, 14
+        criarNavio(2, 4, 50, "h"), // 50, 51, 52, 53
+        criarNavio(3, 3, 5, "v"), // 5, 15, 25
+        criarNavio(4, 3, 70, "h"), // 70, 71, 72
+        criarNavio(5, 2, 88, "v"), // 88, 98
+        criarNavio(6, 2, 20, "h"), // 20, 21
       ];
-    } else {
-      // Frota aleatória, falta fazer
-
-      // Tabuleiros 3, 4 ou padrão caso não coincida
+    } else if (selectedBoard === "3") {
       frotaComputador = [
-        criarNavio(1, 5, 0, "h"),
-        criarNavio(2, 4, 20, "h"),
-        criarNavio(3, 3, 40, "h"),
-        criarNavio(4, 3, 66, "v"),
-        criarNavio(5, 2, 9, "v"),
-        criarNavio(6, 2, 95, "h"),
+        criarNavio(1, 5, 30, "h"), // 30, 31, 32, 33, 34
+        criarNavio(2, 4, 6, "v"), // 6, 16, 26, 36
+        criarNavio(3, 3, 71, "h"), // 71, 72, 73
+        criarNavio(4, 3, 57, "v"), // 57, 67, 77 (Substituiu o 83 inválido)
+        criarNavio(5, 2, 52, "v"), // 52, 62
+        criarNavio(6, 2, 97, "h"), // 97, 98
       ];
+    } else if (selectedBoard === "4") {
+      // Frota aleatória, falta fazer
+      frotaComputador = criarFrotaRandom();
+    } else {
+      //no casso da função falhar
+      frotaComputador = [
+        criarNavio(1, 5, 10, "h"), // 10, 11, 12, 13, 14
+        criarNavio(2, 4, 50, "h"), // 50, 51, 52, 53
+        criarNavio(3, 3, 5, "v"), // 5, 15, 25
+        criarNavio(4, 3, 70, "h"), // 70, 71, 72
+        criarNavio(5, 2, 88, "v"), // 88, 98
+        criarNavio(6, 2, 20, "h"), // 20, 21
+      ];
+      console.log("Erro na Criação da frota aleatória");
     }
 
     setComputerShips(frotaComputador);
