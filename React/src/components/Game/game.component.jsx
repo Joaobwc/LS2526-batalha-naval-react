@@ -236,6 +236,8 @@ function Game() {
 
     setComputerShips(frotaComputador);
 
+    //Verifica se a frota foi toda afundada, every() verifica se a condição sunk===true é verdadeira em cada elemento do array
+
     //iniciar jogo
     setPlayerInfo({
       name: data.playerName,
@@ -247,6 +249,21 @@ function Game() {
     setGameStarted(true);
 
     console.log("handleStartGame Chamando com: ", data);
+  };
+  const isFleetDestroyed = (ships) =>
+    ships.length > 0 && ships.every((s) => s.sunk === true);
+
+  const endGame = ({ winner, reason }) => {
+    setGameOverInfo({
+      winner, // "PLAYER" | "COMPUTER"
+      reason, // "FLEET" | "FUEL"
+      moves: playerInfo.moveCount,
+      playerName: playerInfo.name,
+    });
+    // parar o jogo, diferente do reset
+    setGameStarted(false);
+    setTurn(TURN.PLAYER);
+    setTimeLeft(TIMER.TURN_SECONDS);
   };
 
   // Contar o tamanho da frota do inimigo
