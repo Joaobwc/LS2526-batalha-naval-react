@@ -54,3 +54,9 @@
   background-color: #38bdf8;
   color: #0f172a;
 }
+
+#turnState {
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: #38bdf8; /* azul clarinho */
+}

@@ -30,8 +30,8 @@ function Game() {
   const [computadorUltimoAcerto, setComputadorUltimoAcerto] = useState(null);
   const [computadorAlvos, setComputadorAlvos] = useState([]);
 
-  const [tamanhoFrota, setTamanhoFrota] = useState(0);
-  const [naviosAtingidos, setNaviosAtingidos] = useState(1);
+  //const [tamanhoFrota, setTamanhoFrota] = useState(0);
+  //const [naviosAtingidos, setNaviosAtingidos] = useState(1);
   const [playerShips, setPlayerShips] = useState([]);
   const [computerShips, setComputerShips] = useState([]);
   //const [orientation, setOrientation] = useState("h");
@@ -78,7 +78,7 @@ function Game() {
     });
     setPlayerShips([]);
     setComputerShips([]);
-    setNaviosAtingidos(0);
+    //setNaviosAtingidos(0);
     setTirosNoComputador([]);
     setTirosNoJogador([]);
     setTurn(TURN.PLAYER);
@@ -211,6 +211,13 @@ function Game() {
     return ships;
   };
 
+  const temNavioNaoAtingido = (index) => {
+    // tem navio e ainda não foi disparado pelo jogador
+    return (
+      existeNavio(computerShips, index) && !tirosNoComputador.includes(index)
+    );
+  };
+
   const handleRadar = () => {
     if (!radarDisponivel) return;
 
@@ -225,16 +232,20 @@ function Game() {
 
         const area = [c1, c2, c3, c4];
 
-        // Radar só interessa se houver pelo menos 1 navio
-        const temNavio = area.some((i) => existeNavio(computerShips, i));
+        const navioNaoAtingido = area.some((i) => temNavioNaoAtingido(i));
 
-        if (temNavio) {
+        if (navioNaoAtingido) {
           quadradosValidos.push(area);
         }
       }
     }
 
-    if (quadradosValidos.length === 0) return;
+    if (quadradosValidos.length === 0) {
+      console.log(
+        "Radar: não existem áreas 2x2 com navios ainda não atingidos",
+      );
+      return;
+    }
 
     const escolhido =
       quadradosValidos[Math.floor(Math.random() * quadradosValidos.length)];
@@ -242,7 +253,6 @@ function Game() {
     setRadarCells(escolhido);
     setRadarDisponivel(false);
   };
-
   const handleRadarClick = handleRadar;
 
   //trocar o valor do Board ao mudar
@@ -324,10 +334,11 @@ function Game() {
   };
 
   // Contar o tamanho da frota do inimigo
-  let tam = 0;
+  /*let tam = 0;
   for (let i = 0; i < computerShips.length; i++) {
     tam = tam + computerShips[i].size;
   }
+  */
 
   const applyShotToFleet = (ships, index) => {
     let hit = false;
@@ -562,6 +573,7 @@ function Game() {
         isPlayerTurn={turn == TURN.PLAYER}
         onRadarClick={handleRadarClick}
         radarDisponivel={radarDisponivel}
+        turn={turn}
       />
 
       <section className="boards">
@@ -572,6 +584,7 @@ function Game() {
             debug={true}
             onSquareClick={!gameStarted ? handlePlaceShip : () => {}} // Só permite se o gameStarted for false
             clicks={tirosNoJogador}
+            active={turn === TURN.PLAYER}
           />
         </div>
 
@@ -587,6 +600,7 @@ function Game() {
             }
             clicks={tirosNoComputador}
             radarCells={radarCells}
+            active={turn === TURN.COMPUTER}
           />
         </div>
       </section>

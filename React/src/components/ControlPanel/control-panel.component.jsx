@@ -14,10 +14,17 @@ function ControlPanel({
   isPlayerTurn,
   onRadarClick,
   radarDisponivel,
+  turn,
 }) {
   const handleTimer = (seconds) => {
     if (onTimerTick) onTimerTick(seconds);
   };
+
+  const turnText = !gameStarted
+    ? "—"
+    : turn === TURN.PLAYER
+      ? "Jogador"
+      : "Computador";
 
   return (
     <section id="panel-control">
@@ -37,6 +44,11 @@ function ControlPanel({
         <dl className="list-item right">
           <dt>Combustível:</dt>
           <dd id="fuel">{fuelText}</dd>
+        </dl>
+
+        <dl className="list-item right">
+          <dt>Turno:</dt>
+          <dd id="turnState">{turnText}</dd>
         </dl>
 
         <dl className="list-item left">

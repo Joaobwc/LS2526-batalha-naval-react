@@ -11,9 +11,10 @@ function Board({
   onSquareClick,
   clicks = [],
   radarCells = [],
+  active = false,
 }) {
   const squares = [];
-  const [celulaClicada, setCelulaClicada] = useState([]);
+  //const [celulaClicada, setCelulaClicada] = useState([]);
 
   const isSunkCell = (index) => {
     const ship = ships.find((s) => s.position.includes(index));
